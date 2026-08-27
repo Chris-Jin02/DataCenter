@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" role="img" aria-labelledby="title desc">
+  <title id="title">Entity-resolution boundary sensitivity</title>
+  <desc id="desc">Conservative boundaries yield 1,069 inferred sites, default boundaries yield 951, and permissive boundaries yield 911.</desc>
+  <rect width="1000" height="470" fill="#ffffff"/>
+  <text x="500" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#17233c">Entity-Resolution Boundary Sensitivity</text>
+  <text x="500" y="71" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#52627a">Wider matching boundaries merge more records and reduce the site count</text>
+  <line x1="130" y1="365" x2="900" y2="365" stroke="#8593a6" stroke-width="1"/>
+  <line x1="130" y1="115" x2="130" y2="365" stroke="#8593a6" stroke-width="1"/>
+  <line x1="125" y1="365" x2="900" y2="365" stroke="#d9e0ea" stroke-width="1"/>
+  <line x1="125" y1="240" x2="900" y2="240" stroke="#e7ebf1" stroke-width="1"/>
+  <line x1="125" y1="115" x2="900" y2="115" stroke="#e7ebf1" stroke-width="1"/>
+  <text x="115" y="370" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#52627a">800</text>
+  <text x="115" y="245" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#52627a">950</text>
+  <text x="115" y="120" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#52627a">1,100</text>
+  <rect x="210" y="141" width="150" height="224" rx="3" fill="#6fa6c4"/>
+  <rect x="430" y="240" width="150" height="125" rx="3" fill="#2a6f97"/>
+  <rect x="650" y="274" width="150" height="91" rx="3" fill="#a9bdca"/>
+  <text x="285" y="127" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17233c">1,069</text>
+  <text x="505" y="226" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17233c">951</text>
+  <text x="725" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17233c">911</text>
+  <text x="285" y="397" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#17233c">Conservative</text>
+  <text x="505" y="397" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#17233c">Default</text>
+  <text x="725" y="397" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#17233c">Permissive</text>
+  <text x="285" y="421" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#52627a">Narrower match distances</text>
+  <text x="505" y="421" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#52627a">Primary reported estimate</text>
+  <text x="725" y="421" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#52627a">Wider match distances</text>
+</svg>

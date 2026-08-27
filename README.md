@@ -2,9 +2,9 @@
 
 > A reproducible dataset and modeling proposal for evaluating U.S. data center locations under power, water, network, land, and cost constraints.
 
-**Research status:** Proposal · **Geographic scope:** 50 U.S. states · **Snapshot:** August 22, 2026
+**Research status:** Proposal · **Geographic scope:** 50 U.S. states · **Snapshot:** August 27, 2026
 
-This repository defines an observable feature schema, an entity-resolved site inventory, non-compensatory feasibility rules, and a controlled machine-learning benchmark. It aligns the first-version variables with the [IM3 Open Source Data Center Atlas](https://github.com/IMMM-SFA/datacenter-atlas) and [CERF Data Centers](https://github.com/IMMM-SFA/cerf_data_centers). It does **not** report fabricated or preliminary model accuracy.
+This repository defines an observable feature schema, an entity-resolved site inventory, non-compensatory feasibility rules, an independent outcome-label strategy, and controlled machine-learning benchmarks for scoring, grading, and ranking candidate sites. It aligns the first-version variables with the [IM3 Open Source Data Center Atlas](https://github.com/IMMM-SFA/datacenter-atlas) and [CERF Data Centers](https://github.com/IMMM-SFA/cerf_data_centers). It does **not** report fabricated or preliminary model accuracy.
 
 ## Research at a glance
 
@@ -15,7 +15,9 @@ This repository defines an observable feature schema, an entity-resolved site in
 | Inferred independent sites | 951 | Default entity-resolution estimate, not an official census |
 | Core model features | 15 | Observable and aligned with IM3/CERF-DC calculations |
 | Hard feasibility rules | 13 | Applied before model scoring and never offset by high scores |
-| Primary benchmark experiments | 4 | Two architectures × two supervised tasks |
+| Open outcome-label backbones | 3 | FracTracker, DataCenterTracker, and IM3, supplemented by official records |
+| Primary benchmark experiments | 4 | Two architectures × regression or ordinal classification |
+| Ranking extensions | 2 | One fused ranker or factor-wise rankers followed by fusion |
 
 ## 1. U.S. site distribution
 
@@ -75,9 +77,30 @@ Availability class **A** indicates a clearly defined nationwide public layer or 
 
 H1–H13 screen airports, waterbodies, slope, sinkholes, flood risk, parks and cemeteries, infrastructure distance, protected land, transportation rights-of-way, military areas, and developed-land restrictions.
 
-These fields generate feasible candidates; they are not ordinary compensatory features. A site that fails a hard rule is excluded before regression or classification, even if the remaining model inputs are favorable.
+These fields generate feasible candidates; they are not ordinary compensatory features. A site that fails a hard rule is excluded before regression, classification, or ranking, even if the remaining model inputs are favorable.
 
-## 5. Modeling benchmark
+## 5. Independent outcome labels
+
+No single public source found in this review is a ready-to-train national table with unique projects, final decisions, dates, reasons, and historical site features. The proposed evidence chain is:
+
+`FracTracker project table → DataCenterTracker event history → IM3 operating-site cross-check → official decision evidence → strict labels`
+
+| Source | Role in the label pipeline |
+|---|---|
+| [FracTracker Open U.S. Data Centers Tracker](https://fractracker.org/data-centers/) | Master candidate project table and source links |
+| [DataCenterTracker](https://datacentertracker.org/) | Dated opposition, permit-denial, withdrawal, and other event records |
+| [IM3 Atlas](https://github.com/IMMM-SFA/datacenter-atlas) | Entity-resolved operating-location supplement and spatial cross-check |
+| Official local records | Final confirmation from planning, zoning, permitting, utility, court, or government documents |
+
+The reviewed FracTracker sheet contained 1,665 parseable rows, including 147 Cancelled or Suspended candidates for manual review. DataCenterTracker exposed 1,486 source-linked actions, but actions are neither unique projects nor verified final negative outcomes.
+
+- `positive_strict`: dated official evidence of final approval, permit issuance, construction, or operation.
+- `negative_strict`: dated final government, planning, zoning, or permit denial that was not later overturned.
+- Withdrawn, cancelled for other reasons, delayed, suspended, and pending projects remain separate outcomes in the first benchmark.
+
+Only features observable before a frozen prediction time `t0` may enter training. Cancellation, suspension, news coverage, and post-decision infrastructure changes cannot be used as shortcut predictors. Dataset URLs, completeness checks, integration steps, feasibility gates, and licensing boundaries appear in the data notebook.
+
+## 6. Modeling benchmark
 
 Two architectures are evaluated under two supervised formulations. All four experiments use identical nested spatial cross-validation folds and one locked geographic test set.
 
@@ -100,7 +123,13 @@ Two architectures are evaluated under two supervised formulations. All four expe
 
 Regression is selected primarily by outer-fold MAE; ordinal classification is selected by QWK and grade MAE. The best regression and classification models are reported separately and need not use the same algorithm. The IM3/CERF-DC rule score remains a shared external reference baseline, not a fifth experiment.
 
-## 6. Repository structure
+### Learning-to-rank extension
+
+Two additional experiments compare one fused ranker (R1) with factor-wise power, water, network, land, and cost rankers followed by out-of-fold fusion (R2). Candidate models include RankSVM, LambdaMART implementations, CatBoostRanker, neural RankNet/LambdaRank, and an FT-Transformer ranker. NDCG@K is the primary metric, supported by Top-K hit rate, pairwise accuracy, Spearman correlation, and ranking-stability analysis.
+
+Candidate groups and all sites from the same project or local spatial cluster must remain in the same fold. An IM3-derived ranking can support distillation or reproduction, but a claim of improvement requires independent expert preferences or observed decision outcomes.
+
+## 7. Repository structure
 
 ```text
 .
@@ -123,32 +152,36 @@ Regression is selected primarily by outer-fold MAE; ordinal classification is se
 
 The numbered notebooks separate data definition from modeling decisions:
 
-1. [`01_us_site_inventory_and_feature_schema.ipynb`](notebooks/01_us_site_inventory_and_feature_schema.ipynb) documents entity resolution, the state map, 15 core features, and H1–H13.
-2. [`02_modeling_and_benchmark_design.ipynb`](notebooks/02_modeling_and_benchmark_design.ipynb) documents factor-wise submodels, candidate algorithms, leakage controls, metrics, and the four primary experiments.
+1. [`01_us_site_inventory_and_feature_schema.ipynb`](notebooks/01_us_site_inventory_and_feature_schema.ipynb) documents entity resolution, the state map, 15 core features, H1–H13, independent label sources, and integration feasibility.
+2. [`02_modeling_and_benchmark_design.ipynb`](notebooks/02_modeling_and_benchmark_design.ipynb) documents factor-wise submodels, candidate algorithms, leakage controls, metrics, four primary experiments, and two learning-to-rank extensions.
 
-## 7. Reproducibility
+## 8. Reproducibility
 
 The executable inventory cell uses only the Python standard library (`pathlib` and `sqlite3`) and expects execution from `notebooks/`. Its relative path resolves the included GeoPackage at `../data/raw/im3_us_data_center_locations.gpkg`.
 
 The cell reproduces the simple source-layer count of 1,471 distinct IDs across 45 states. The reported 951-site inventory additionally applies the documented cross-layer entity-resolution procedure; the two quantities have different meanings and must not be interchanged.
 
-## 8. Data provenance
+## 9. Data provenance
 
 See [`data/README.md`](data/README.md) for source, role, and reuse notes. Principal upstream sources include:
 
 - [IM3 Open Source Data Center Atlas](https://github.com/IMMM-SFA/datacenter-atlas)
 - [CERF Data Centers](https://github.com/IMMM-SFA/cerf_data_centers)
 - [IM3 Projected U.S. Data Center Locations](https://www.osti.gov/biblio/2571680)
+- [FracTracker Open U.S. Data Centers Tracker](https://fractracker.org/data-centers/)
+- [Tracking American AI Data Center Buildout](https://datacentertracker.org/)
 - FCC Broadband Data Collection
 - USGS Public Supply Service Areas
 - HIFLD/GeoPlatform, NLCD, and Census TIGERweb
 
-## 9. Limitations
+## 10. Limitations
 
 - Site counts depend on explicit entity-resolution boundaries and require sampled manual review.
 - Distance to infrastructure does not establish spare electric, water, or network capacity.
 - Several project-specific features require permits, utility opinions, or local tax and parcel records.
-- A valid supervised model still requires defensible outcome or expert labels collected independently of model inputs.
-- If grades are discretized from `y_score`, the cut points must be fitted inside training folds and cannot provide an independent validation target.
+- Independent strict labels require official confirmation; Cancelled, Suspended, Withdrawn, and Pending are not automatic negatives.
+- Historical features must be reconstructed at `t0`; current values can cause temporal leakage.
+- If grades are discretized from `y_score`, cut points must be fitted inside training folds and cannot provide an independent validation target.
+- Deep learning is not justified as a primary result until the independently labeled sample is substantially larger.
 
 No license is asserted for third-party source data in this repository. Users should review the original providers' attribution, licensing, and redistribution terms before reuse.

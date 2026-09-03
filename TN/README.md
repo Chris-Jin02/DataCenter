@@ -16,7 +16,7 @@ This project assembles Tennessee data-center records and supporting spatial-anal
 - [`dataset/tennessee_public_data_centers.xlsx`](dataset/tennessee_public_data_centers.xlsx): current Tennessee facility dataset.
 - [`dataset/Tennessee Data Center Dataset Update and Compatibility Specification.md`](dataset/Tennessee%20Data%20Center%20Dataset%20Update%20and%20Compatibility%20Specification.md): dataset maintenance and compatibility specification.
 - [`Map/tennessee_dcmap.html`](Map/tennessee_dcmap.html): generated interactive Tennessee facility map.
-- [`Map/Tennessee_DC_Map_Generator_Template_Workflow.ipynb`](Map/Tennessee_DC_Map_Generator_Template_Workflow.ipynb): reproducible map-generation notebook.
+- [`Map/TN_DC_Map_Generator.ipynb`](Map/TN_DC_Map_Generator.ipynb): reproducible map-generation notebook.
 - [`Map/template/TN_dcmap_template.html`](Map/template/TN_dcmap_template.html): HTML map template used by the notebook.
 
 ## Map workflow

@@ -126,6 +126,7 @@ select {
   <div class="countrow">
     <div class="stat"><div class="n" id="visibleCount">0</div><div class="lab">Visible facilities</div></div>
     <div class="stat"><div class="n" id="mwCount">0</div><div class="lab">With published MW</div></div>
+    <div class="stat"><div class="n" id="candidateCount">0</div><div class="lab">Candidate sites</div></div>
   </div>
 
   <div class="searchrow">
@@ -134,6 +135,35 @@ select {
   </div>
 
   <button class="togglebtn on" id="cryptoToggle">✓ Crypto included</button>
+
+  <div class="section candidate-section">
+    <div class="label">Candidate layer</div>
+    <button class="togglebtn on" id="candidateToggle">✓ Candidate sites included</button>
+  </div>
+
+  <div class="section">
+    <div class="label">Data quality</div>
+    <select id="verificationFilter">
+      <option value="all">All verification classes</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="review">Review required</option>
+      <option value="candidate">Candidate</option>
+    </select>
+    <div style="height:6px"></div>
+    <select id="confidenceFilter">
+      <option value="all">All source confidence</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <div style="height:6px"></div>
+    <select id="qualityFilter">
+      <option value="all">All QA states</option>
+      <option value="clean">No coordinate/status conflict</option>
+      <option value="coordinate_conflict">Coordinate conflict</option>
+      <option value="status_conflict">Status conflict</option>
+    </select>
+  </div>
 
   <div class="section">
     <div class="label">Lifecycle</div>
@@ -167,6 +197,7 @@ select {
 
 <script>
 const DATA = __DATA_JSON__;
+const CANDIDATES = __CANDIDATE_JSON__;
 
 const statusColors = {
   operational: "#2E7D32",
@@ -194,19 +225,20 @@ const typeLabels = {
   crypto_mining: "Crypto mining"
 };
 
-const map = L.map("map", { zoomControl:false, preferCanvas:true }).setView([35.85, -86.35], 7);
+const map = L.map("map", { zoomControl:false, preferCanvas:true, attributionControl:false }).setView([35.85, -86.35], 7);
 L.control.zoom({position:"bottomright"}).addTo(map);
 const positron = L.maplibreGL({
-  style: "https://tiles.openfreemap.org/styles/positron"
+  style: "https://tiles.openfreemap.org/styles/positron",
+  attributionControl: false
 }).addTo(map);
 
 const liberty = L.maplibreGL({
-  style: "https://tiles.openfreemap.org/styles/liberty"
+  style: "https://tiles.openfreemap.org/styles/liberty",
+  attributionControl: false
 });
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
-    attribution:'&copy; OpenStreetMap contributors',
     maxZoom:19
   }
 );
@@ -316,9 +348,15 @@ let cryptoIncluded = true;
 let activeStatuses = new Set(DATA.map(d => d.status));
 let selectedOperator = "__ALL__";
 let selectedMW = "all";
+let candidateIncluded = true;
+let selectedVerification = "all";
+let selectedConfidence = "all";
+let selectedQuality = "all";
 
 const markerLayer = L.layerGroup().addTo(map);
+const candidateLayer = L.layerGroup().addTo(map);
 const markerObjects = [];
+const candidateMarkerObjects = [];
 
 function esc(v) {
   if (v === null || v === undefined || v === "") return "—";
@@ -369,11 +407,51 @@ function popupHtml(d) {
       <tr><td>Address</td><td>${esc(d.address)}</td></tr>
       <tr><td>Coordinates</td><td>${d.lat.toFixed(5)}, ${d.lon.toFixed(5)}</td></tr>
       <tr><td>Precision</td><td>${esc(d.location_precision)}</td></tr>
+      <tr><td>Verification</td><td>${esc(d.verification_class)}</td></tr>
+      <tr><td>Source confidence</td><td>${esc(d.source_confidence_class)}${d.source_confidence_score == null ? "" : ` (${fmtNum(d.source_confidence_score)})`}</td></tr>
+      <tr><td>Cross-verified</td><td>${d.cross_verified === true ? "Yes" : d.cross_verified === false ? "No" : "—"}</td></tr>
+      <tr><td>Evidence domains</td><td>${fmtNum(d.independent_evidence_domain_count)}</td></tr>
+      <tr><td>Coordinate conflict</td><td>${d.coordinate_conflict_flag ? "Yes" : "No"}</td></tr>
+      <tr><td>Status conflict</td><td>${d.status_conflict_flag ? "Yes" : "No"}</td></tr>
       <tr><td>Sources</td><td>${esc(d.sources)}</td></tr>
       <tr><td>Last updated</td><td>${esc(d.last_updated)}</td></tr>
     </table>
     ${links}
   </div>`;
+}
+
+function candidatePopupHtml(d) {
+  let links = "";
+  if (Array.isArray(d.evidence_urls) && d.evidence_urls.length) {
+    links = `<div class="links"><b>Evidence:</b> ${d.evidence_urls.slice(0,6).map((u,i) => `<a href="${esc(u)}" target="_blank" rel="noopener">Evidence ${i+1}</a>`).join(" · ")}</div>`;
+  }
+  return `<div class="popup">
+    <h3>${esc(d.candidate_site_name)}</h3>
+    <div class="meta">${esc(d.candidate_id)} · Candidate site</div>
+    <table>
+      <tr><td>Type</td><td>${esc(d.candidate_type)}</td></tr>
+      <tr><td>Confidence</td><td>${esc(d.candidate_confidence)}</td></tr>
+      <tr><td>City</td><td>${esc(d.city)}</td></tr>
+      <tr><td>County</td><td>${esc(d.county)}</td></tr>
+      <tr><td>Address</td><td>${esc(d.address)}</td></tr>
+      <tr><td>Evidence basis</td><td>${esc(d.evidence_basis)}</td></tr>
+      <tr><td>Review note</td><td>${esc(d.review_note)}</td></tr>
+      <tr><td>Last verified</td><td>${esc(d.last_verified)}</td></tr>
+    </table>${links}
+  </div>`;
+}
+
+function makeCandidateMarker(d) {
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="dc-marker dc-circle" style="width:16px;height:16px;background:rgba(255,255,255,.85);border:3px dashed #D97706;"></div>`,
+    iconSize: [16,16],
+    iconAnchor: [8,8]
+  });
+  const m = L.marker([d.lat,d.lon], {icon});
+  m.bindTooltip(`<b>${esc(d.candidate_site_name)}</b><br>Candidate · ${esc(d.candidate_confidence)}`, {direction:"top"});
+  m.bindPopup(candidatePopupHtml(d), {maxWidth:420});
+  return m;
 }
 
 function makeMarker(d) {
@@ -416,6 +494,37 @@ function isVisible(d) {
   if (!activeStatuses.has(d.status)) return false;
   if (selectedOperator !== "__ALL__" && d.operator !== selectedOperator) return false;
   if (!mwPass(d)) return false;
+
+  // Candidate is a separate layer, so selecting Candidate excludes Master records.
+  if (selectedVerification === "candidate") return false;
+  if (selectedVerification !== "all" && d.verification_class !== selectedVerification) return false;
+  if (selectedConfidence !== "all" && d.source_confidence_class !== selectedConfidence) return false;
+
+  const coordinateConflict = d.coordinate_conflict_flag === true;
+  const statusConflict = d.status_conflict_flag === true;
+  if (selectedQuality === "clean" && (coordinateConflict || statusConflict)) return false;
+  if (selectedQuality === "coordinate_conflict" && !coordinateConflict) return false;
+  if (selectedQuality === "status_conflict" && !statusConflict) return false;
+
+  return true;
+}
+
+function isCandidateVisible(d) {
+  if (!candidateIncluded) return false;
+
+  // Candidate records only belong to verification=all or verification=candidate.
+  if (selectedVerification !== "all" && selectedVerification !== "candidate") return false;
+
+  // Candidate confidence is stored separately from the Master location-confidence field.
+  if (selectedConfidence !== "all" && d.candidate_confidence !== selectedConfidence) return false;
+
+  // Candidates have no explicit QA conflict flags today; absence of a flag is treated as clean.
+  const coordinateConflict = d.coordinate_conflict_flag === true;
+  const statusConflict = d.status_conflict_flag === true;
+  if (selectedQuality === "clean" && (coordinateConflict || statusConflict)) return false;
+  if (selectedQuality === "coordinate_conflict" && !coordinateConflict) return false;
+  if (selectedQuality === "status_conflict" && !statusConflict) return false;
+
   return true;
 }
 
@@ -445,7 +554,35 @@ function refreshMap() {
   }
 }
 
+function refreshCandidates() {
+  candidateLayer.clearLayers();
+  let candidateVisible = 0;
+
+  candidateMarkerObjects.forEach(obj => {
+    if (isCandidateVisible(obj.data)) {
+      obj.marker.addTo(candidateLayer);
+      candidateVisible += 1;
+    }
+  });
+
+  document.getElementById("candidateCount").textContent = candidateVisible;
+
+  const btn = document.getElementById("candidateToggle");
+  if (candidateIncluded) {
+    btn.className = "togglebtn on";
+    btn.textContent = "✓ Candidate sites included";
+  } else {
+    btn.className = "togglebtn off";
+    btn.textContent = "Candidate sites excluded";
+  }
+}
+
 DATA.forEach(d => markerObjects.push({data:d, marker:makeMarker(d)}));
+CANDIDATES.forEach(d => {
+  if (d.lat !== null && d.lon !== null && Number.isFinite(Number(d.lat)) && Number.isFinite(Number(d.lon))) {
+    candidateMarkerObjects.push({data:d, marker:makeCandidateMarker(d)});
+  }
+});
 const operators = [...new Set(DATA.map(d => d.operator).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
 const opSelect = document.getElementById("operatorFilter");
 operators.forEach(op => {
@@ -476,6 +613,11 @@ document.getElementById("cryptoToggle").onclick = () => {
   refreshMap();
 };
 
+document.getElementById("candidateToggle").onclick = () => {
+  candidateIncluded = !candidateIncluded;
+  refreshCandidates();
+};
+
 opSelect.onchange = e => {
   selectedOperator = e.target.value;
   refreshMap();
@@ -486,20 +628,48 @@ document.getElementById("mwFilter").onchange = e => {
   refreshMap();
 };
 
+document.getElementById("verificationFilter").onchange = e => {
+  selectedVerification = e.target.value;
+  refreshMap();
+  refreshCandidates();
+};
+
+document.getElementById("confidenceFilter").onchange = e => {
+  selectedConfidence = e.target.value;
+  refreshMap();
+  refreshCandidates();
+};
+
+document.getElementById("qualityFilter").onchange = e => {
+  selectedQuality = e.target.value;
+  refreshMap();
+  refreshCandidates();
+};
+
 function fitVisible() {
   const pts = markerObjects.filter(x => isVisible(x.data)).map(x => [x.data.lat, x.data.lon]);
-  if (pts.length) map.fitBounds(pts, {padding:[30,30]});
+  const candidatePts = candidateMarkerObjects.filter(x => isCandidateVisible(x.data)).map(x => [x.data.lat, x.data.lon]);
+  const allPts = pts.concat(candidatePts);
+  if (allPts.length) map.fitBounds(allPts, {padding:[30,30]});
 }
 
 document.getElementById("resetBtn").onclick = () => {
   cryptoIncluded = true;
+  candidateIncluded = true;
   activeStatuses = new Set(DATA.map(d => d.status));
   selectedOperator = "__ALL__";
   selectedMW = "all";
+  selectedVerification = "all";
+  selectedConfidence = "all";
+  selectedQuality = "all";
   opSelect.value = "__ALL__";
   document.getElementById("mwFilter").value = "all";
+  document.getElementById("verificationFilter").value = "all";
+  document.getElementById("confidenceFilter").value = "all";
+  document.getElementById("qualityFilter").value = "all";
   document.querySelectorAll(".statusbtn").forEach(b => b.classList.remove("inactive"));
   refreshMap();
+  refreshCandidates();
   fitVisible();
 };
 
@@ -525,6 +695,7 @@ document.getElementById("searchBox").addEventListener("keydown", e => {
 });
 
 refreshMap();
+refreshCandidates();
 fitVisible();
 </script>
 </body>

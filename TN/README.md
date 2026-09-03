@@ -4,6 +4,12 @@
 
 This project assembles Tennessee data-center records and supporting spatial-analysis artifacts for a TN-first research workflow. It is maintained separately from the broader national framework in [`../DCUS/`](../DCUS/).
 
+## Tennessee facility map
+
+![Tennessee data center map](Map/tennessee_dcmap_preview.png)
+
+*Static preview of the current facility map. The interactive source is available in [`Map/tennessee_dcmap.html`](Map/tennessee_dcmap.html).*
+
 ## Contents
 
 - [`Tennessee_spatial_analysis.md`](Tennessee_spatial_analysis.md): research questions, analytical workflow, spatial methods, and validation strategy.

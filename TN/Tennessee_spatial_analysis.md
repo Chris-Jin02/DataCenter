@@ -32,6 +32,12 @@ The research sequence is:
 
 All conclusions are initially limited to observational spatial associations within Tennessee. Causal language such as "mechanism demonstrated" will not be used without independent temporal or policy evidence.
 
+## Current Tennessee Facility Map
+
+![Tennessee data center map](Map/tennessee_dcmap_preview.png)
+
+*Static preview of the current facility inventory. See [`Map/tennessee_dcmap.html`](Map/tennessee_dcmap.html) for the interactive map source.*
+
 ---
 
 # 1. Current Research Boundaries

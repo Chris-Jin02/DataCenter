@@ -17,8 +17,7 @@ The national research framework: U.S. site inventory, feature schema, feasibilit
 ```text
 .
 ├── TN/      # Active Tennessee-first project
-├── DCUS/    # National research framework
-└── docs/    # Repository design and implementation records
+└── DCUS/    # National research framework
 ```
 
 The projects share one Git history but retain separate geographic scopes and project documentation.

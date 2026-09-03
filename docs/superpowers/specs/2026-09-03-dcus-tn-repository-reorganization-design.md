@@ -11,6 +11,10 @@ DataCenter/
 ├── .git/
 ├── .gitignore
 ├── README.md
+├── docs/
+│   └── superpowers/
+│       ├── plans/
+│       └── specs/
 ├── DCUS/
 │   ├── README.md
 │   ├── data/
@@ -71,7 +75,7 @@ The reorganization will be represented as one implementation commit after valida
 
 Before committing:
 
-1. Confirm the repository has exactly the intended tracked project roots and no tracked `.DS_Store` files.
+1. Confirm the repository has the intended `DCUS/`, `TN/`, and `docs/` roots and no tracked `.DS_Store` files.
 2. Confirm every file previously tracked in the national project is represented under `DCUS/`, except the root `.gitignore`, which remains shared.
 3. Confirm the Tennessee import contains the expected Markdown, notebook, HTML, template, and Excel artifacts.
 4. Parse all notebooks as JSON.

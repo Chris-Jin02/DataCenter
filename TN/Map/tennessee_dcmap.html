@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennessee Data Center Map</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css"/>
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+<style>
+html, body { height:100%; margin:0; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f6f7f9; }
+#map { position:absolute; inset:0; }
+
+.panel {
+  position:absolute; z-index:1000; top:16px; left:16px;
+  width:330px; max-height:calc(100vh - 32px); overflow:auto;
+  background:rgba(255,255,255,.96); border:1px solid #d8dde5;
+  border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.15);
+  padding:14px 14px 12px 14px; box-sizing:border-box;
+  transition:width .18s ease, height .18s ease, padding .18s ease;
+}
+.panel-content { display:block; }
+.panel.collapsed {
+  width:46px;
+  height:46px;
+  min-height:46px;
+  padding:0;
+  overflow:hidden;
+  border-radius:12px;
+}
+.panel.collapsed .panel-content { display:none; }
+.panel-toggle {
+  position:absolute;
+  z-index:2;
+  top:8px;
+  right:8px;
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #cfd5dd;
+  border-radius:9px;
+  background:rgba(255,255,255,.96);
+  color:#344054;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+  font-weight:700;
+}
+.panel-toggle:hover { background:#f2f4f7; }
+.panel.collapsed .panel-toggle {
+  top:7px;
+  right:7px;
+  width:30px;
+  height:30px;
+}
+.title { font-weight:750; font-size:18px; margin-bottom:10px; padding-right:36px; }
+.countrow { display:flex; gap:8px; margin-bottom:10px; }
+.stat { flex:1; background:#f2f4f7; border-radius:10px; padding:8px 9px; }
+.stat .n { font-size:20px; font-weight:750; line-height:1; }
+.stat .lab { font-size:10px; color:#667085; margin-top:4px; }
+
+.searchrow { display:flex; gap:6px; margin-bottom:10px; }
+.searchrow input {
+  flex:1; border:1px solid #cfd5dd; border-radius:9px; padding:8px 9px; outline:none;
+}
+.smallbtn, .togglebtn, .statusbtn {
+  border:1px solid #cfd5dd; background:white; cursor:pointer;
+  border-radius:9px; padding:7px 9px; font-size:12px;
+}
+.smallbtn:hover, .togglebtn:hover, .statusbtn:hover { background:#f2f4f7; }
+
+.section { border-top:1px solid #e5e7eb; padding-top:9px; margin-top:9px; }
+.label { font-size:11px; color:#667085; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+
+.togglebtn { width:100%; font-weight:700; padding:9px 10px; }
+.togglebtn.on { background:#111827; color:white; border-color:#111827; }
+.togglebtn.off { background:#fff; color:#111827; }
+
+.statuswrap { display:flex; flex-wrap:wrap; gap:6px; }
+.statusbtn { padding:6px 8px; }
+.statusbtn.inactive { opacity:.35; text-decoration:line-through; }
+
+select {
+  width:100%; border:1px solid #cfd5dd; border-radius:9px;
+  padding:8px 9px; background:#fff;
+}
+
+.popup h3 { margin:0 0 7px 0; font-size:15px; }
+.popup .meta { color:#667085; font-size:11px; margin-bottom:7px; }
+.popup table { border-collapse:collapse; font-size:11px; width:100%; }
+.popup td { padding:3px 4px; border-bottom:1px solid #eee; vertical-align:top; }
+.popup td:first-child { color:#667085; width:34%; }
+.popup .links { margin-top:7px; font-size:11px; line-height:1.5; }
+
+.dc-marker {
+  box-sizing:border-box; border:2px solid rgba(17,24,39,.80);
+  box-shadow:0 1px 4px rgba(0,0,0,.35);
+}
+.dc-circle { border-radius:50%; }
+.dc-square { border-radius:2px; }
+.dc-diamond { transform:rotate(45deg); border-radius:2px; }
+.dc-diamond > span { display:block; transform:rotate(-45deg); }
+
+@media (max-width:700px) {
+  .panel { width:calc(100vw - 24px); top:12px; left:12px; max-height:48vh; }
+  .panel.collapsed { width:46px; height:46px; }
+}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<div class="panel" id="controlPanel">
+  <button class="panel-toggle" id="panelToggle" type="button" aria-label="Collapse control panel" title="Collapse panel">‹</button>
+  <div class="panel-content">
+  <div class="title">Tennessee Data Center Map</div>
+
+  <div class="countrow">
+    <div class="stat"><div class="n" id="visibleCount">0</div><div class="lab">Visible facilities</div></div>
+    <div class="stat"><div class="n" id="mwCount">0</div><div class="lab">With published MW</div></div>
+  </div>
+
+  <div class="searchrow">
+    <input id="searchBox" placeholder="Search facility / operator / city">
+    <button class="smallbtn" id="searchBtn">Search</button>
+  </div>
+
+  <button class="togglebtn on" id="cryptoToggle">✓ Crypto included</button>
+
+  <div class="section">
+    <div class="label">Lifecycle</div>
+    <div class="statuswrap" id="statusButtons"></div>
+  </div>
+
+  <div class="section">
+    <div class="label">Operator</div>
+    <select id="operatorFilter"><option value="__ALL__">All operators</option></select>
+  </div>
+
+  <div class="section">
+    <div class="label">Published capacity</div>
+    <select id="mwFilter">
+      <option value="all">All MW / unknown</option>
+      <option value="known">Published MW only</option>
+      <option value="unknown">No published MW</option>
+      <option value="lt10">&lt; 10 MW</option>
+      <option value="10_49">10–49 MW</option>
+      <option value="50_99">50–99 MW</option>
+      <option value="100_299">100–299 MW</option>
+      <option value="gte300">≥ 300 MW</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <button class="smallbtn" id="resetBtn" style="width:100%">Reset filters & fit Tennessee</button>
+  </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"facility_id":"TNDC-001","facility_name":"Flexential - Nashville/Brentwood (NAS01/04)","operator":"Flexential","address":"7100 Commerce Way, Suite 25,","city":"Brentwood","county":"Williamson","state":"TN","postal_code":"37027","lat":35.972453,"lon":-86.808748,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | peeringdb","source_count":"2","last_updated":"2026-07-23","evidence_urls":["https://www.flexential.com/","https://www.flexential.com/data-centers/tn/nashville/brentwood-data-center","https://www.openstreetmap.org/node/12112295055"]},{"facility_id":"TNDC-002","facility_name":"CleanSpark Campbell Junction Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Campbell Junction","county":"Cumberland","state":"TN","postal_code":null,"lat":36.0436,"lon":-85.1692,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-003","facility_name":"DC BLOX CHA1 - DCBLOX Chattanooga","operator":"DC BLOX Parent LLC","address":"807 E 16th St","city":"Chattanooga","county":"Hamilton","state":"TN","postal_code":"37408","lat":35.03158,"lon":-85.2973,"location_precision":"address_or_site","location_confidence":"High","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"fractracker | peeringdb","source_count":"2","last_updated":45926.953576388885,"evidence_urls":["https://www.dcblox.com/data-centers/chattanooga/"]},{"facility_id":"TNDC-004","facility_name":"Jailhouse Studios (former Hamilton County Jail)","operator":"Urban Story Ventures","address":"601 Walnut St","city":"Chattanooga","county":"Hamilton","state":"TN","postal_code":"37402","lat":35.049557,"lon":-85.30803,"location_precision":"address_or_site","location_confidence":"High","status":"under_construction","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-08-15","evidence_urls":["https://foxchattanooga.com/news/local/hamilton-county-advances-plan-to-convert-old-jail-into-ai-data-center-and-music-studio","https://www.chattanoogan.com/2026/3/18/516194/County-Commission-Approves-Lease-For.aspx","https://www.datacenterdynamics.com/en/news/former-jail-in-chattanooga-tennessee-targeted-for-production-space-and-data-center/","https://newschannel9.com/news/local/residents-rally-against-proposed-ai-data-center-inside-old-hamilton-county-jail","https://urbanstoryventures.com/citys-new-jailhouse-studios-the-worlds-first-quantum-ready-sovereign-data-processing-and-ai-center-with-an-integrated-creator-campus/"]},{"facility_id":"TNDC-005","facility_name":"Peace Communications CHA1","operator":"Peace Communications","address":"1100 E 11th Street","city":"Chattanooga","county":null,"state":"TN","postal_code":"37403","lat":35.03746,"lon":-85.293181,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.96059027778,"evidence_urls":["https://www.peacecom.net/pages/colocation"]},{"facility_id":"TNDC-006","facility_name":"Cielo Montgomery County AI Campus","operator":"Cielo Digital Infrastructure","address":null,"city":"Clarksville","county":"Montgomery","state":"TN","postal_code":null,"lat":36.53,"lon":-87.36,"location_precision":"exact","location_confidence":"reported","status":"proposed","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":350.0,"square_feet":null,"property_acres":107.0,"investment_usd":null,"sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-07-26","evidence_urls":["https://cieloinfra.com/","https://cleanview.co/data-centers/tennessee/2037/cielo-clarksville-data-center","https://www.arcgis.com/home/item.html?id=597555ce8e4a4892a030784a7c657fdd","https://www.datacenterdynamics.com/en/news/cielo-digital-infrastructure-plans-300mw-data-center-campus-in-south-carolina/"]},{"facility_id":"TNDC-007","facility_name":"Google Montgomery County Data Center","operator":"Google","address":"1000 Boolean Dr","city":"Clarksville","county":"Montgomery","state":"TN","postal_code":"37040","lat":36.62078,"lon":-87.2622,"location_precision":"address_or_site","location_confidence":"High","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":"$600 million","sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-07-06","evidence_urls":["https://clarksvillenow.com/local/google-officially-opens-clarksville-montgomery-county-data-center/","https://datacenters.google/locations/montgomery-county-tennessee/","https://tnecd.com/news/governor-haslam-commissioner-boyd-announce-google-to-locate-new-data-center-in-clarksville/"]},{"facility_id":"TNDC-008","facility_name":"Collierville Enterprise Data Center (FedEx World Technology Center Campus)","operator":"Aphorio Carter","address":null,"city":"Collierville","county":"Shelby","state":"TN","postal_code":null,"lat":35.04204,"lon":-89.66453,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":4.62,"investment_usd":"13000000","sources":"compute_atlas","source_count":"1","last_updated":"2026-08-15","evidence_urls":["https://baxtel.com/data-center/memphis","https://www.prnewswire.com/news-releases/aphorio-carter-acquires-data-center-in-collierville-tn-301983903.html"]},{"facility_id":"TNDC-009","facility_name":"CleanSpark West Crossville Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Crossville","county":"Cumberland","state":"TN","postal_code":null,"lat":35.9487,"lon":-85.0269,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-010","facility_name":"CleanSpark Decatur Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Decatur","county":"Meigs","state":"TN","postal_code":null,"lat":35.5148,"lon":-84.7902,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-011","facility_name":"Flexential - Nashville/Cool Springs (NAS02/03)","operator":"Flexential","address":"425 Duke Drive, Suite 400","city":"Franklin","county":"Williamson","state":"TN","postal_code":"37067","lat":35.951091,"lon":-86.833251,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | peeringdb","source_count":"2","last_updated":"2026-07-23","evidence_urls":["https://www.arcgis.com/home/item.html?id=597555ce8e4a4892a030784a7c657fdd","https://www.flexential.com/data-centers/tn/nashville/cool-springs-data-center","https://www.openstreetmap.org/way/1210515186","https://www.flexential.com/"]},{"facility_id":"TNDC-012","facility_name":"Flexential - Nashville/Franklin (NAS05/06)","operator":"Flexential","address":"4600 Carothers Parkway","city":"Franklin","county":"Williamson","state":"TN","postal_code":"37067","lat":35.92028,"lon":-86.815618,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | peeringdb","source_count":"2","last_updated":"2026-07-23","evidence_urls":["https://www.arcgis.com/home/item.html?id=597555ce8e4a4892a030784a7c657fdd","https://www.flexential.com/data-centers/tn/nashville/franklin-data-center","https://www.openstreetmap.org/way/942604537","https://www.flexential.com/"]},{"facility_id":"TNDC-013","facility_name":"TierPoint Nashville","operator":"TierPoint","address":"311 Eddy Lane","city":"Franklin","county":"Williamson","state":"TN","postal_code":"37064","lat":35.924575,"lon":-86.85582,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | peeringdb","source_count":"2","last_updated":"2026-07-23","evidence_urls":["https://www.arcgis.com/home/item.html?id=597555ce8e4a4892a030784a7c657fdd","https://www.openstreetmap.org/way/819981908","https://www.tierpoint.com/data-centers/tennessee/nashville/","https://www.tierpoint.com/data-centers/tennessee/nashville/"]},{"facility_id":"TNDC-014","facility_name":"Centersquare Gallatin (NAS) Campus","operator":"Centersquare","address":null,"city":"Gallatin","county":"Sumner","state":"TN","postal_code":null,"lat":36.40406,"lon":-86.39812,"location_precision":"exact","location_confidence":"confirmed","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":28.5,"investment_usd":"200000000","sources":"compute_atlas","source_count":"1","last_updated":"2026-08-15","evidence_urls":["https://baxtel.com/data-center/centersquare-gallatin-nas","https://www.datacenterfrontier.com/cloud/article/11427377/evoque-to-partner-with-archer-datacenters-on-200m-nashville-campus","https://www.newschannel5.com/news/how-big-are-middle-tennessees-data-centers-a-look-at-facilities-already-operating"]},{"facility_id":"TNDC-015","facility_name":"Meta Gallatin Data Center Campus","operator":"Meta","address":"One Meta Lp","city":"Gallatin","county":"Sumner","state":"TN","postal_code":"37066","lat":36.41011,"lon":-86.3724,"location_precision":"address_or_site","location_confidence":"High","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":1900000.0,"property_acres":900.0,"investment_usd":"1500000000","sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-07-25","evidence_urls":["https://datacenters.atmeta.com/2024/11/gallatin-we-are-online/","https://ttc.tml1.org/2024/11/15/meta-data-center-begins-operations-gallatin","https://w.media/meta-expands-gallatin-data-center-with-nearly-1b-total-investment/","https://www.datacenterdynamics.com/en/news/meta-brings-data-centers-in-tents-to-gallatin-tennessee/","https://www.pascalforgallatin.com/post/why-is-gallatin-giving-woolhawk-a-tax-break-when-they-are-considering-raising-our-property-taxes","https://www.weku.org/amsn/2025-11-25/tennessee-has-60-data-centers-nashville-probably-has-more-than-you-think","https://www.datacenterdynamics.com/en/news/meta-to-expand-tennessee-data-center-campus/"]},{"facility_id":"TNDC-016","facility_name":"CleanSpark Jellico Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Jellico","county":"Campbell","state":"TN","postal_code":null,"lat":36.5825,"lon":-84.1306,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-017","facility_name":"Bitdeer Knoxville AI Datacenter (5101 S. National Drive)","operator":"Bitdeer","address":null,"city":"Knoxville","county":"Knox","state":"TN","postal_code":null,"lat":35.941272,"lon":-83.836066,"location_precision":"approximate","location_confidence":"reported","status":"under_construction","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":9.88,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-07-23","evidence_urls":["https://www.arcgis.com/home/item.html?id=597555ce8e4a4892a030784a7c657fdd","https://www.sec.gov/Archives/edgar/data/1899123/000121390026049770/ea0282628-20f_bitdeer.htm"]},{"facility_id":"TNDC-018","facility_name":"Peace Communications KNX1","operator":"Peace Communications (Formerly Nexus Group)","address":"500 W. Summit Hill","city":"Knoxville","county":null,"state":"TN","postal_code":"37902","lat":35.965586,"lon":-83.921438,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":46225.17381944445,"evidence_urls":["http://www.peacecom.net"]},{"facility_id":"TNDC-019","facility_name":"CleanSpark Lenoir City Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Lenoir City","county":"Loudon","state":"TN","postal_code":null,"lat":35.7973,"lon":-84.256,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.globenewswire.com/news-release/2024/02/14/2828934/0/en/GRIID-Infrastructure-Announces-Plans-to-Double-Capacity-of-Lenoir-City-Tenn-Bitcoin-Mining-Operations.html","https://www.prnewswire.com/news-releases/cleanspark-announces-agreement-to-acquire-griid-infrastructure-based-on-an-enterprise-value-of-155-million-and-expansion-plans-of-over-400-mw-in-tennessee-302184116.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-020","facility_name":"CleanSpark Limestone Bitcoin Mining Facility (closed 2026)","operator":"CleanSpark, Inc.","address":null,"city":"Limestone","county":"Washington","state":"TN","postal_code":null,"lat":36.2235,"lon":-82.625,"location_precision":"approximate","location_confidence":"confirmed","status":"cancelled","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-announces-agreement-to-acquire-griid-infrastructure-based-on-an-enterprise-value-of-155-million-and-expansion-plans-of-over-400-mw-in-tennessee-302184116.html","https://www.wjhl.com/news/local/bitcoin-mine-would-close-move-in-proposed-lawsuit-settlement/","https://www.yahoo.com/news/articles/noisy-bitcoin-mine-shuts-down-212411956.html"]},{"facility_id":"TNDC-021","facility_name":"Arnold Air Force Base Data Center","operator":"Unknown","address":null,"city":"Manchester","county":"Coffee","state":"TN","postal_code":"37355","lat":35.37539,"lon":-86.07293,"location_precision":"approximate_site","location_confidence":"Medium","status":"proposed","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":274.0,"investment_usd":null,"sources":"fractracker","source_count":"1","last_updated":"45951","evidence_urls":["https://www.datacenterdynamics.com/en/news/us-department-of-the-air-force-accepting-proposals-for-ai-data-centers-in-military-bases/"]},{"facility_id":"TNDC-022","facility_name":"CleanSpark Maynardville Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Maynardville","county":"Union","state":"TN","postal_code":null,"lat":36.2506,"lon":-83.7974,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-announces-agreement-to-acquire-griid-infrastructure-based-on-an-enterprise-value-of-155-million-and-expansion-plans-of-over-400-mw-in-tennessee-302184116.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-023","facility_name":"Hixson Data Center (McMinnville)","operator":"Hixson Data Center","address":"possibly Bybee Branch Rd","city":"McMinnville","county":"Warren","state":"TN","postal_code":"37110","lat":35.718937,"lon":-85.83887,"location_precision":"area_or_city","location_confidence":"Low","status":"proposed","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":25.0,"square_feet":96065.0,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-08-15","evidence_urls":["https://baxtel.com/news/25mw-ai-data-center-planned-for-mcminnville","https://www.wsmv.com/2026/06/01/amid-plans-new-high-density-ai-data-center-campus-middle-tennessee-city-locals-push-moratorium-such-facilities/","https://hixsondc.com/","https://warrencountyecd.com/site/mcminnville-warren-digital-site/","https://www.datacenterdynamics.com/en/news/25mw-ai-data-center-to-be-built-in-mcminnville-tennessee/"]},{"facility_id":"TNDC-024","facility_name":"Litewire McMinnville (former A.O. Smith Building)","operator":"Litewire","address":null,"city":"McMinnville","county":"Warren","state":"TN","postal_code":null,"lat":35.69221,"lon":-85.7619,"location_precision":"exact","location_confidence":"confirmed","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-15","evidence_urls":["https://tnecd.com/news/litewire-llc-to-open-new-facility-in-warren-county/","https://www.newschannel5.com/news/how-big-are-middle-tennessees-data-centers-a-look-at-facilities-already-operating"]},{"facility_id":"TNDC-025","facility_name":"Colossus","operator":"xAI","address":null,"city":"Memphis","county":"Shelby","state":"TN","postal_code":null,"lat":35.0565,"lon":-90.0148,"location_precision":"exact","location_confidence":"reported","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-26","evidence_urls":["https://en.wikipedia.org/wiki/Colossus_(supercomputer)","https://www.cnbc.com/2025/07/16/musks-xai-permits-challenged-by-naacp-environmental-groups-memphis.html","https://www.datacenterdynamics.com/en/news/xai-doubles-number-of-onsite-gas-turbines-at-memphis-data-center-in-violation-of-permit-limits/","https://www.governing.com/resilience/wastewater-will-cool-this-memphis-data-center","https://www.reuters.com/technology/artificial-intelligence/musk-says-xai-has-built-worlds-most-powerful-ai-training-cluster-2024-09-24/"]},{"facility_id":"TNDC-026","facility_name":"DataBank Memphis (MEM1)","operator":"DataBank","address":"7620 Appling Center Dr","city":"Memphis","county":"Shelby","state":"TN","postal_code":"38133","lat":35.203086,"lon":-89.808615,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | peeringdb","source_count":"2","last_updated":"2026-08-15","evidence_urls":["https://baxtel.com/data-center/memphis","https://www.databank.com/data-centers/memphis/7620-appling-center-drive/","https://www.databank.com/data-centers/memphis/mem1/"]},{"facility_id":"TNDC-027","facility_name":"EdgeConneX Memphis (EDCMEM01)","operator":"EdgeConneX Inc.","address":"4005 S Mendenhall Rd","city":"Memphis","county":null,"state":"TN","postal_code":"38115","lat":35.038995,"lon":-89.88623,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.948113425926,"evidence_urls":["http://www.edgeconnex.com"]},{"facility_id":"TNDC-028","facility_name":"Expedient Memphis","operator":"Expedient","address":"3180 Players Lane","city":"Memphis","county":null,"state":"TN","postal_code":"38125","lat":35.062965,"lon":-89.786143,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.954675925925,"evidence_urls":["https://www.expedient.com/data-centers/"]},{"facility_id":"TNDC-029","facility_name":"Level(3) Memphis","operator":"Lumen Technologies Inc","address":"3993 Crowfarn Drive","city":"Memphis","county":null,"state":"TN","postal_code":"38118-7326","lat":35.028826,"lon":-89.930755,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.94741898148,"evidence_urls":["http://www.level3.com"]},{"facility_id":"TNDC-030","facility_name":"xAI Colossus 1","operator":"xAI","address":"3231 Riverport Rd/ Paul Lowry Rd","city":"Memphis","county":"Shelby","state":"TN","postal_code":"38109","lat":35.05983,"lon":-90.1562,"location_precision":"address_or_site","location_confidence":"High","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":498.0,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"fractracker","source_count":"1","last_updated":"46027","evidence_urls":["https://epoch.ai/data/data-centers/satellite-explorer/xAIColossus1MemphisTennessee?ref=404media.co","https://www.datacenterdynamics.com/en/news/xai-removes-some-of-controversial-gas-turbines-from-memphis-data-center/","https://www.selc.org/news/xai-built-an-illegal-power-plant-to-power-its-data-center/"]},{"facility_id":"TNDC-031","facility_name":"xAI Colossus 2","operator":"xAI","address":"5420 Tulane Rd","city":"Memphis","county":"Shelby","state":"TN","postal_code":"38109","lat":34.998074,"lon":-90.03507,"location_precision":"address_or_site","location_confidence":"High","status":"expanding","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":1400.0,"square_feet":1000000.0,"property_acres":null,"investment_usd":null,"sources":"fractracker","source_count":"1","last_updated":"46234","evidence_urls":["https://epoch.ai/data/data-centers/satellite-explorer/xAIColossus2MemphisTennessee?ref=404media.co","https://www.datacenterdynamics.com/en/news/elon-musks-xai-buys-one-million-sq-ft-site-for-second-memphis-data-center/","https://www.datacenterdynamics.com/en/news/elon-musks-xai-to-spend-659m-on-new-building-for-memphis-data-center-cluster/","https://www.datacenterdynamics.com/en/news/musk-confirms-fourth-spacexai-data-center-in-memphis-company-starts-removing-illegal-gas-turbines/","https://www.selc.org/news/xai-built-an-illegal-power-plant-to-power-its-data-center/","https://www.tomshardware.com/tech-industry/artificial-intelligence/elon-musk-xai-power-plant-overseas-to-power-1-million-gpus"]},{"facility_id":"TNDC-032","facility_name":"DC BLOX Nashville (Grassmere Park)","operator":"DC BLOX","address":"648 Grassmere Park","city":"Nashville","county":"Davidson","state":"TN","postal_code":"37211","lat":36.090492,"lon":-86.74721,"location_precision":"address_or_site","location_confidence":"High","status":"proposed","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":69220.0,"property_acres":null,"investment_usd":null,"sources":"compute_atlas | fractracker","source_count":"2","last_updated":"2026-08-15","evidence_urls":["https://williamsonsource.com/dc-blox-sues-metro-over-blocked-data-center-project-near-nashville-zoo/","https://www.wsmv.com/2026/07/22/metro-council-passes-first-data-center-regulations-nashville-heres-what-changes/","https://www.yahoo.com/news/us/articles/guide-data-centers-tennessee-could-081728521.html","https://www.datacenterdynamics.com/en/news/dc-bloxs-proposed-24-acre-data-center-near-nashville-zoo-could-be-blocked-by-moratorium/","https://www.wkrn.com/news/local-news/nashville/160k-sign-petition-opposing-data-center-next-nashville-zoo/","https://www.wsmv.com/2026/06/04/what-know-about-potential-data-center-next-nashville-zoo-facility-launches-petition-against-its-construction-feet-away-one-most-fragile-rare-collections-animals/"]},{"facility_id":"TNDC-033","facility_name":"EdgeConneX Nashville (EDCNAS01)","operator":"EdgeConneX Inc.","address":"1841 Air Lane Dr","city":"Nashville","county":null,"state":"TN","postal_code":"37210","lat":36.144881,"lon":-86.701721,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.94809027778,"evidence_urls":["http://www.edgeconnex.com"]},{"facility_id":"TNDC-034","facility_name":"H5 Data Centers Nashville","operator":"H5 Data Centers","address":"147 Fourth Ave","city":"Nashville","county":"Davidson","state":"TN","postal_code":"37219","lat":36.1628,"lon":-86.77863,"location_precision":"address_or_site","location_confidence":"High","status":"operational","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":19700.0,"property_acres":null,"investment_usd":null,"sources":"fractracker | peeringdb","source_count":"2","last_updated":"46085","evidence_urls":["https://h5datacenters.com/nashville-colocation.html","https://www.datacenterdynamics.com/en/news/h5-and-novacap-launch-new-data-center-platform-acquire-three-carrier-hotels-from-365/"]},{"facility_id":"TNDC-035","facility_name":"H5 Data Centers Nashville (TN01)","operator":"IRIS","address":"211 Commerce Street","city":"Nashville","county":null,"state":"TN","postal_code":"37201","lat":36.162621,"lon":-86.776316,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":46204.929872685185,"evidence_urls":["http://h5datacenters.com/","http://www.iristransport.com/"]},{"facility_id":"TNDC-036","facility_name":"Level(3) Nashville (9th Ave)","operator":"Lumen Technologies Inc","address":"2208 9th Ave N","city":"Nashville","county":null,"state":"TN","postal_code":"37208","lat":36.189148,"lon":-86.804111,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.94820601852,"evidence_urls":["http://www.level3.net"]},{"facility_id":"TNDC-037","facility_name":"Level(3) Nashville (Sidco Drive)","operator":"Lumen Technologies Inc","address":"2992 Sidco Drive","city":"Nashville","county":null,"state":"TN","postal_code":"37201","lat":36.102726,"lon":-86.755786,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.946226851855,"evidence_urls":["http://www.level3.com"]},{"facility_id":"TNDC-038","facility_name":"Peace Communications NSH2","operator":"Peace Communications (Formerly Nexus Group)","address":"1661 Murfreesboro Pike","city":"Nashville","county":null,"state":"TN","postal_code":"37217","lat":36.103326,"lon":-86.668932,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.95216435185,"evidence_urls":["http://nxs.net/nashville-data-center/"]},{"facility_id":"TNDC-039","facility_name":"Quantum Leap Data Center/ Fisk University","operator":"Unknown","address":null,"city":"Nashville","county":"Davidson","state":"TN","postal_code":"37208","lat":36.168316,"lon":-86.805565,"location_precision":"approximate_site","location_confidence":"Medium","status":"proposed","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":30.0,"square_feet":70000.0,"property_acres":null,"investment_usd":"$400 million","sources":"fractracker","source_count":"1","last_updated":"46162","evidence_urls":["https://www.datacenterdynamics.com/en/news/fisk-university-looks-to-build-data-center-in-nashville-tennessee/"]},{"facility_id":"TNDC-040","facility_name":"RadiusDC Nashville I","operator":"RadiusDC","address":null,"city":"Nashville","county":"Davidson","state":"TN","postal_code":null,"lat":36.27987,"lon":-86.7837,"location_precision":"approximate","location_confidence":"confirmed","status":"under_construction","facility_type":"data_center","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":12.0,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-15","evidence_urls":["https://www.radius-dc.com/newsroom-and-events/radiusdc-breaks-ground-on-largest-data-center-in-nashville","https://www.yahoo.com/news/us/articles/guide-data-centers-tennessee-could-081728521.html"]},{"facility_id":"TNDC-041","facility_name":"XO Nashville","operator":"XO","address":"101 Molloy Street","city":"Nashville","county":null,"state":"TN","postal_code":"37201","lat":36.158837,"lon":-86.772516,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.94627314815,"evidence_urls":["http://www.xo.com"]},{"facility_id":"TNDC-042","facility_name":"Zayo Nashville - 209 10th Ave. S","operator":"Zayo Group","address":"209 10th Ave. S","city":"Nashville","county":null,"state":"TN","postal_code":"37203","lat":36.155165,"lon":-86.782559,"location_precision":"address_or_site","location_confidence":null,"status":"operational","facility_type":"interconnection_facility","analysis_scope":"core_data_center","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"peeringdb","source_count":"1","last_updated":45926.94965277778,"evidence_urls":["http://www.databank.com"]},{"facility_id":"TNDC-043","facility_name":"CleanSpark New Tazewell Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"New Tazewell","county":"Claiborne","state":"TN","postal_code":null,"lat":36.4426,"lon":-83.5996,"location_precision":"approximate","location_confidence":"reported","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-044","facility_name":"CleanSpark Oneida Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Oneida","county":"Scott","state":"TN","postal_code":null,"lat":36.4981,"lon":-84.5127,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]},{"facility_id":"TNDC-045","facility_name":"CleanSpark Winfield Bitcoin Mining Facility","operator":"CleanSpark, Inc.","address":null,"city":"Winfield","county":"Scott","state":"TN","postal_code":null,"lat":36.5619,"lon":-84.4506,"location_precision":"approximate","location_confidence":"confirmed","status":"operational","facility_type":"crypto_mining","analysis_scope":"crypto_mining","capacity_mw":null,"square_feet":null,"property_acres":null,"investment_usd":null,"sources":"compute_atlas","source_count":"1","last_updated":"2026-08-05","evidence_urls":["https://www.prnewswire.com/news-releases/cleanspark-to-add-5-ehs-and-increase-2024-guidance-with-acquisition-of-seven-additional-bitcoin-mining-facilities-in-tennessee-302244673.html","https://www.sec.gov/Archives/edgar/data/827876/000119312525297510/clsk-20250930.htm"]}];
+
+const statusColors = {
+  operational: "#2E7D32",
+  under_construction: "#F59E0B",
+  proposed: "#2563EB",
+  expanding: "#7C3AED",
+  cancelled: "#6B7280",
+  inactive: "#6B7280",
+  unknown: "#111827"
+};
+
+const statusLabels = {
+  operational: "Operational",
+  under_construction: "Under construction",
+  proposed: "Proposed",
+  expanding: "Expanding",
+  cancelled: "Cancelled",
+  inactive: "Inactive",
+  unknown: "Unknown"
+};
+
+const typeLabels = {
+  data_center: "Data center",
+  interconnection_facility: "Interconnection facility",
+  crypto_mining: "Crypto mining"
+};
+
+const map = L.map("map", { zoomControl:false, preferCanvas:true }).setView([35.85, -86.35], 7);
+L.control.zoom({position:"bottomright"}).addTo(map);
+const positron = L.maplibreGL({
+  style: "https://tiles.openfreemap.org/styles/positron"
+}).addTo(map);
+
+const liberty = L.maplibreGL({
+  style: "https://tiles.openfreemap.org/styles/liberty"
+});
+const osm = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:19
+  }
+);
+
+L.control.layers(
+  {
+    "OpenFreeMap · Positron": positron,
+    "OpenFreeMap · Liberty": liberty,
+    "OpenStreetMap · Standard": osm
+  },
+  {},
+  {position:"topright", collapsed:true}
+).addTo(map);
+map.createPane('tnOutsideMaskPane');
+map.getPane('tnOutsideMaskPane').style.zIndex = 350;
+map.getPane('tnOutsideMaskPane').style.pointerEvents = 'none';
+
+map.createPane('tnBoundaryPane');
+map.getPane('tnBoundaryPane').style.zIndex = 500;
+map.getPane('tnBoundaryPane').style.pointerEvents = 'none';
+
+const CENSUS_TN_URL =
+  "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/10/query" +
+  "?where=STUSAB%3D%27TN%27" +
+  "&outFields=NAME%2CSTUSAB%2CSTATE" +
+  "&returnGeometry=true" +
+  "&outSR=4326" +
+  "&geometryPrecision=5" +
+  "&f=geojson";
+
+let tnBoundaryLayer = null;
+let tnOutsideMaskLayer = null;
+
+function lonLatRingToLeaflet(ring) {
+  return ring.map(p => [p[1], p[0]]);
+}
+
+function exteriorRingsFromGeometry(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") {
+    return geometry.coordinates.length ? [geometry.coordinates[0]] : [];
+  }
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates
+      .filter(poly => poly && poly.length)
+      .map(poly => poly[0]);
+  }
+  return [];
+}
+async function loadOfficialTennesseeBoundary() {
+  try {
+    const response = await fetch(CENSUS_TN_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const geojson = await response.json();
+    if (!geojson.features || !geojson.features.length) {
+      throw new Error("Tennessee feature was not returned by TIGERweb");
+    }
+
+    const tnFeature = geojson.features[0];
+    tnBoundaryLayer = L.geoJSON(tnFeature, {
+      pane: 'tnBoundaryPane',
+      interactive: false,
+      style: {
+        color: '#111827',
+        weight: 3.2,
+        opacity: 0.96,
+        fillOpacity: 0
+      }
+    }).addTo(map);
+    const outerWorld = [
+      [20, -105],
+      [20, -70],
+      [45, -70],
+      [45, -105]
+    ];
+    const tnHoles = exteriorRingsFromGeometry(tnFeature.geometry)
+      .map(lonLatRingToLeaflet);
+
+    tnOutsideMaskLayer = L.polygon(
+      [outerWorld, ...tnHoles],
+      {
+        pane: 'tnOutsideMaskPane',
+        interactive: false,
+        stroke: false,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.60,
+        fillRule: 'evenodd'
+      }
+    ).addTo(map);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+loadOfficialTennesseeBoundary();
+const controlPanel = document.getElementById('controlPanel');
+const panelToggle = document.getElementById('panelToggle');
+
+panelToggle.addEventListener('click', () => {
+  const collapsed = controlPanel.classList.toggle('collapsed');
+  panelToggle.textContent = collapsed ? '☰' : '‹';
+  panelToggle.setAttribute('aria-label', collapsed ? 'Expand control panel' : 'Collapse control panel');
+  panelToggle.title = collapsed ? 'Expand panel' : 'Collapse panel';
+});
+
+let cryptoIncluded = true;
+let activeStatuses = new Set(DATA.map(d => d.status));
+let selectedOperator = "__ALL__";
+let selectedMW = "all";
+
+const markerLayer = L.layerGroup().addTo(map);
+const markerObjects = [];
+
+function esc(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  return String(v).replace(/[&<>"']/g, s => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[s]));
+}
+
+function fmtNum(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  const n = Number(v);
+  if (Number.isFinite(n)) return n.toLocaleString(undefined, {maximumFractionDigits:2});
+  return esc(v);
+}
+
+function markerSize(mw) {
+  if (mw === null || mw === undefined || !Number.isFinite(Number(mw))) return 13;
+  const x = Number(mw);
+  return Math.max(13, Math.min(34, 12 + Math.log2(1 + x) * 2.2));
+}
+
+function markerClass(type) {
+  if (type === "interconnection_facility") return "dc-square";
+  if (type === "crypto_mining") return "dc-diamond";
+  return "dc-circle";
+}
+
+function popupHtml(d) {
+  const mw = d.capacity_mw == null ? "No published MW" : `${fmtNum(d.capacity_mw)} MW`;
+  let links = "";
+  if (Array.isArray(d.evidence_urls) && d.evidence_urls.length) {
+    const shown = d.evidence_urls.slice(0, 6).map((u, i) =>
+      `<a href="${esc(u)}" target="_blank" rel="noopener">Evidence ${i+1}</a>`
+    ).join(" · ");
+    links = `<div class="links"><b>Evidence:</b> ${shown}</div>`;
+  }
+
+  return `
+  <div class="popup">
+    <h3>${esc(d.facility_name)}</h3>
+    <div class="meta">${esc(d.facility_id)} · ${esc(typeLabels[d.facility_type] || d.facility_type)}</div>
+    <table>
+      <tr><td>Operator</td><td>${esc(d.operator)}</td></tr>
+      <tr><td>Lifecycle</td><td>${esc(statusLabels[d.status] || d.status)}</td></tr>
+      <tr><td>Capacity</td><td>${esc(mw)}</td></tr>
+      <tr><td>City</td><td>${esc(d.city)}</td></tr>
+      <tr><td>County</td><td>${esc(d.county)}</td></tr>
+      <tr><td>Address</td><td>${esc(d.address)}</td></tr>
+      <tr><td>Coordinates</td><td>${d.lat.toFixed(5)}, ${d.lon.toFixed(5)}</td></tr>
+      <tr><td>Precision</td><td>${esc(d.location_precision)}</td></tr>
+      <tr><td>Sources</td><td>${esc(d.sources)}</td></tr>
+      <tr><td>Last updated</td><td>${esc(d.last_updated)}</td></tr>
+    </table>
+    ${links}
+  </div>`;
+}
+
+function makeMarker(d) {
+  const size = markerSize(d.capacity_mw);
+  const color = statusColors[d.status] || statusColors.unknown;
+  const cls = markerClass(d.facility_type);
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="dc-marker ${cls}" style="width:${size}px;height:${size}px;background:${color};"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2]
+  });
+  const m = L.marker([d.lat, d.lon], {icon:icon});
+  m.bindTooltip(
+    `<b>${esc(d.facility_name)}</b><br>${esc(d.operator)}<br>` +
+    `${d.capacity_mw == null ? "MW: unknown" : "MW: " + fmtNum(d.capacity_mw)}`,
+    {direction:"top"}
+  );
+  m.bindPopup(popupHtml(d), {maxWidth:390});
+  return m;
+}
+
+function mwPass(d) {
+  const known = d.capacity_mw !== null && d.capacity_mw !== undefined && Number.isFinite(Number(d.capacity_mw));
+  const mw = known ? Number(d.capacity_mw) : null;
+  if (selectedMW === "all") return true;
+  if (selectedMW === "known") return known;
+  if (selectedMW === "unknown") return !known;
+  if (!known) return false;
+  if (selectedMW === "lt10") return mw < 10;
+  if (selectedMW === "10_49") return mw >= 10 && mw < 50;
+  if (selectedMW === "50_99") return mw >= 50 && mw < 100;
+  if (selectedMW === "100_299") return mw >= 100 && mw < 300;
+  if (selectedMW === "gte300") return mw >= 300;
+  return true;
+}
+
+function isVisible(d) {
+  if (!cryptoIncluded && d.facility_type === "crypto_mining") return false;
+  if (!activeStatuses.has(d.status)) return false;
+  if (selectedOperator !== "__ALL__" && d.operator !== selectedOperator) return false;
+  if (!mwPass(d)) return false;
+  return true;
+}
+
+function refreshMap() {
+  markerLayer.clearLayers();
+  let visible = 0;
+  let mwVisible = 0;
+
+  markerObjects.forEach(obj => {
+    if (isVisible(obj.data)) {
+      obj.marker.addTo(markerLayer);
+      visible += 1;
+      if (obj.data.capacity_mw !== null && obj.data.capacity_mw !== undefined) mwVisible += 1;
+    }
+  });
+
+  document.getElementById("visibleCount").textContent = visible;
+  document.getElementById("mwCount").textContent = mwVisible;
+
+  const btn = document.getElementById("cryptoToggle");
+  if (cryptoIncluded) {
+    btn.className = "togglebtn on";
+    btn.textContent = "✓ Crypto included";
+  } else {
+    btn.className = "togglebtn off";
+    btn.textContent = "Crypto excluded";
+  }
+}
+
+DATA.forEach(d => markerObjects.push({data:d, marker:makeMarker(d)}));
+const operators = [...new Set(DATA.map(d => d.operator).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+const opSelect = document.getElementById("operatorFilter");
+operators.forEach(op => {
+  const opt = document.createElement("option");
+  opt.value = op; opt.textContent = op;
+  opSelect.appendChild(opt);
+});
+const statuses = [...new Set(DATA.map(d => d.status))];
+const statusWrap = document.getElementById("statusButtons");
+
+statuses.forEach(st => {
+  const b = document.createElement("button");
+  b.className = "statusbtn";
+  b.dataset.status = st;
+  b.textContent = statusLabels[st] || st;
+  b.onclick = () => {
+    if (activeStatuses.has(st)) {
+      activeStatuses.delete(st); b.classList.add("inactive");
+    } else {
+      activeStatuses.add(st); b.classList.remove("inactive");
+    }
+    refreshMap();
+  };
+  statusWrap.appendChild(b);
+});
+document.getElementById("cryptoToggle").onclick = () => {
+  cryptoIncluded = !cryptoIncluded;
+  refreshMap();
+};
+
+opSelect.onchange = e => {
+  selectedOperator = e.target.value;
+  refreshMap();
+};
+
+document.getElementById("mwFilter").onchange = e => {
+  selectedMW = e.target.value;
+  refreshMap();
+};
+
+function fitVisible() {
+  const pts = markerObjects.filter(x => isVisible(x.data)).map(x => [x.data.lat, x.data.lon]);
+  if (pts.length) map.fitBounds(pts, {padding:[30,30]});
+}
+
+document.getElementById("resetBtn").onclick = () => {
+  cryptoIncluded = true;
+  activeStatuses = new Set(DATA.map(d => d.status));
+  selectedOperator = "__ALL__";
+  selectedMW = "all";
+  opSelect.value = "__ALL__";
+  document.getElementById("mwFilter").value = "all";
+  document.querySelectorAll(".statusbtn").forEach(b => b.classList.remove("inactive"));
+  refreshMap();
+  fitVisible();
+};
+
+function doSearch() {
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  if (!q) return;
+  const hit = markerObjects.find(x => {
+    const d = x.data;
+    const text = [d.facility_name,d.operator,d.city,d.county,d.facility_id].filter(Boolean).join(" ").toLowerCase();
+    return text.includes(q) && isVisible(d);
+  });
+  if (hit) {
+    map.setView([hit.data.lat, hit.data.lon], 13);
+    hit.marker.openPopup();
+  } else {
+    alert("No visible facility matched the search. Try resetting filters or including Crypto.");
+  }
+}
+
+document.getElementById("searchBtn").onclick = doSearch;
+document.getElementById("searchBox").addEventListener("keydown", e => {
+  if (e.key === "Enter") doSearch();
+});
+
+refreshMap();
+fitVisible();
+</script>
+</body>
+</html>

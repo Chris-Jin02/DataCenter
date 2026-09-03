@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennessee Data Center Map</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css"/>
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+<style>
+html, body { height:100%; margin:0; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f6f7f9; }
+#map { position:absolute; inset:0; }
+
+.panel {
+  position:absolute; z-index:1000; top:16px; left:16px;
+  width:330px; max-height:calc(100vh - 32px); overflow:auto;
+  background:rgba(255,255,255,.96); border:1px solid #d8dde5;
+  border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.15);
+  padding:14px 14px 12px 14px; box-sizing:border-box;
+  transition:width .18s ease, height .18s ease, padding .18s ease;
+}
+.panel-content { display:block; }
+.panel.collapsed {
+  width:46px;
+  height:46px;
+  min-height:46px;
+  padding:0;
+  overflow:hidden;
+  border-radius:12px;
+}
+.panel.collapsed .panel-content { display:none; }
+.panel-toggle {
+  position:absolute;
+  z-index:2;
+  top:8px;
+  right:8px;
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #cfd5dd;
+  border-radius:9px;
+  background:rgba(255,255,255,.96);
+  color:#344054;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+  font-weight:700;
+}
+.panel-toggle:hover { background:#f2f4f7; }
+.panel.collapsed .panel-toggle {
+  top:7px;
+  right:7px;
+  width:30px;
+  height:30px;
+}
+.title { font-weight:750; font-size:18px; margin-bottom:10px; padding-right:36px; }
+.countrow { display:flex; gap:8px; margin-bottom:10px; }
+.stat { flex:1; background:#f2f4f7; border-radius:10px; padding:8px 9px; }
+.stat .n { font-size:20px; font-weight:750; line-height:1; }
+.stat .lab { font-size:10px; color:#667085; margin-top:4px; }
+
+.searchrow { display:flex; gap:6px; margin-bottom:10px; }
+.searchrow input {
+  flex:1; border:1px solid #cfd5dd; border-radius:9px; padding:8px 9px; outline:none;
+}
+.smallbtn, .togglebtn, .statusbtn {
+  border:1px solid #cfd5dd; background:white; cursor:pointer;
+  border-radius:9px; padding:7px 9px; font-size:12px;
+}
+.smallbtn:hover, .togglebtn:hover, .statusbtn:hover { background:#f2f4f7; }
+
+.section { border-top:1px solid #e5e7eb; padding-top:9px; margin-top:9px; }
+.label { font-size:11px; color:#667085; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+
+.togglebtn { width:100%; font-weight:700; padding:9px 10px; }
+.togglebtn.on { background:#111827; color:white; border-color:#111827; }
+.togglebtn.off { background:#fff; color:#111827; }
+
+.statuswrap { display:flex; flex-wrap:wrap; gap:6px; }
+.statusbtn { padding:6px 8px; }
+.statusbtn.inactive { opacity:.35; text-decoration:line-through; }
+
+select {
+  width:100%; border:1px solid #cfd5dd; border-radius:9px;
+  padding:8px 9px; background:#fff;
+}
+
+.popup h3 { margin:0 0 7px 0; font-size:15px; }
+.popup .meta { color:#667085; font-size:11px; margin-bottom:7px; }
+.popup table { border-collapse:collapse; font-size:11px; width:100%; }
+.popup td { padding:3px 4px; border-bottom:1px solid #eee; vertical-align:top; }
+.popup td:first-child { color:#667085; width:34%; }
+.popup .links { margin-top:7px; font-size:11px; line-height:1.5; }
+
+.dc-marker {
+  box-sizing:border-box; border:2px solid rgba(17,24,39,.80);
+  box-shadow:0 1px 4px rgba(0,0,0,.35);
+}
+.dc-circle { border-radius:50%; }
+.dc-square { border-radius:2px; }
+.dc-diamond { transform:rotate(45deg); border-radius:2px; }
+.dc-diamond > span { display:block; transform:rotate(-45deg); }
+
+@media (max-width:700px) {
+  .panel { width:calc(100vw - 24px); top:12px; left:12px; max-height:48vh; }
+  .panel.collapsed { width:46px; height:46px; }
+}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<div class="panel" id="controlPanel">
+  <button class="panel-toggle" id="panelToggle" type="button" aria-label="Collapse control panel" title="Collapse panel">‹</button>
+  <div class="panel-content">
+  <div class="title">Tennessee Data Center Map</div>
+
+  <div class="countrow">
+    <div class="stat"><div class="n" id="visibleCount">0</div><div class="lab">Visible facilities</div></div>
+    <div class="stat"><div class="n" id="mwCount">0</div><div class="lab">With published MW</div></div>
+  </div>
+
+  <div class="searchrow">
+    <input id="searchBox" placeholder="Search facility / operator / city">
+    <button class="smallbtn" id="searchBtn">Search</button>
+  </div>
+
+  <button class="togglebtn on" id="cryptoToggle">✓ Crypto included</button>
+
+  <div class="section">
+    <div class="label">Lifecycle</div>
+    <div class="statuswrap" id="statusButtons"></div>
+  </div>
+
+  <div class="section">
+    <div class="label">Operator</div>
+    <select id="operatorFilter"><option value="__ALL__">All operators</option></select>
+  </div>
+
+  <div class="section">
+    <div class="label">Published capacity</div>
+    <select id="mwFilter">
+      <option value="all">All MW / unknown</option>
+      <option value="known">Published MW only</option>
+      <option value="unknown">No published MW</option>
+      <option value="lt10">&lt; 10 MW</option>
+      <option value="10_49">10–49 MW</option>
+      <option value="50_99">50–99 MW</option>
+      <option value="100_299">100–299 MW</option>
+      <option value="gte300">≥ 300 MW</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <button class="smallbtn" id="resetBtn" style="width:100%">Reset filters & fit Tennessee</button>
+  </div>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA_JSON__;
+
+const statusColors = {
+  operational: "#2E7D32",
+  under_construction: "#F59E0B",
+  proposed: "#2563EB",
+  expanding: "#7C3AED",
+  cancelled: "#6B7280",
+  inactive: "#6B7280",
+  unknown: "#111827"
+};
+
+const statusLabels = {
+  operational: "Operational",
+  under_construction: "Under construction",
+  proposed: "Proposed",
+  expanding: "Expanding",
+  cancelled: "Cancelled",
+  inactive: "Inactive",
+  unknown: "Unknown"
+};
+
+const typeLabels = {
+  data_center: "Data center",
+  interconnection_facility: "Interconnection facility",
+  crypto_mining: "Crypto mining"
+};
+
+const map = L.map("map", { zoomControl:false, preferCanvas:true }).setView([35.85, -86.35], 7);
+L.control.zoom({position:"bottomright"}).addTo(map);
+const positron = L.maplibreGL({
+  style: "https://tiles.openfreemap.org/styles/positron"
+}).addTo(map);
+
+const liberty = L.maplibreGL({
+  style: "https://tiles.openfreemap.org/styles/liberty"
+});
+const osm = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:19
+  }
+);
+
+L.control.layers(
+  {
+    "OpenFreeMap · Positron": positron,
+    "OpenFreeMap · Liberty": liberty,
+    "OpenStreetMap · Standard": osm
+  },
+  {},
+  {position:"topright", collapsed:true}
+).addTo(map);
+map.createPane('tnOutsideMaskPane');
+map.getPane('tnOutsideMaskPane').style.zIndex = 350;
+map.getPane('tnOutsideMaskPane').style.pointerEvents = 'none';
+
+map.createPane('tnBoundaryPane');
+map.getPane('tnBoundaryPane').style.zIndex = 500;
+map.getPane('tnBoundaryPane').style.pointerEvents = 'none';
+
+const CENSUS_TN_URL =
+  "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/10/query" +
+  "?where=STUSAB%3D%27TN%27" +
+  "&outFields=NAME%2CSTUSAB%2CSTATE" +
+  "&returnGeometry=true" +
+  "&outSR=4326" +
+  "&geometryPrecision=5" +
+  "&f=geojson";
+
+let tnBoundaryLayer = null;
+let tnOutsideMaskLayer = null;
+
+function lonLatRingToLeaflet(ring) {
+  return ring.map(p => [p[1], p[0]]);
+}
+
+function exteriorRingsFromGeometry(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") {
+    return geometry.coordinates.length ? [geometry.coordinates[0]] : [];
+  }
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates
+      .filter(poly => poly && poly.length)
+      .map(poly => poly[0]);
+  }
+  return [];
+}
+async function loadOfficialTennesseeBoundary() {
+  try {
+    const response = await fetch(CENSUS_TN_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const geojson = await response.json();
+    if (!geojson.features || !geojson.features.length) {
+      throw new Error("Tennessee feature was not returned by TIGERweb");
+    }
+
+    const tnFeature = geojson.features[0];
+    tnBoundaryLayer = L.geoJSON(tnFeature, {
+      pane: 'tnBoundaryPane',
+      interactive: false,
+      style: {
+        color: '#111827',
+        weight: 3.2,
+        opacity: 0.96,
+        fillOpacity: 0
+      }
+    }).addTo(map);
+    const outerWorld = [
+      [20, -105],
+      [20, -70],
+      [45, -70],
+      [45, -105]
+    ];
+    const tnHoles = exteriorRingsFromGeometry(tnFeature.geometry)
+      .map(lonLatRingToLeaflet);
+
+    tnOutsideMaskLayer = L.polygon(
+      [outerWorld, ...tnHoles],
+      {
+        pane: 'tnOutsideMaskPane',
+        interactive: false,
+        stroke: false,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.60,
+        fillRule: 'evenodd'
+      }
+    ).addTo(map);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+loadOfficialTennesseeBoundary();
+const controlPanel = document.getElementById('controlPanel');
+const panelToggle = document.getElementById('panelToggle');
+
+panelToggle.addEventListener('click', () => {
+  const collapsed = controlPanel.classList.toggle('collapsed');
+  panelToggle.textContent = collapsed ? '☰' : '‹';
+  panelToggle.setAttribute('aria-label', collapsed ? 'Expand control panel' : 'Collapse control panel');
+  panelToggle.title = collapsed ? 'Expand panel' : 'Collapse panel';
+});
+
+let cryptoIncluded = true;
+let activeStatuses = new Set(DATA.map(d => d.status));
+let selectedOperator = "__ALL__";
+let selectedMW = "all";
+
+const markerLayer = L.layerGroup().addTo(map);
+const markerObjects = [];
+
+function esc(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  return String(v).replace(/[&<>"']/g, s => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[s]));
+}
+
+function fmtNum(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  const n = Number(v);
+  if (Number.isFinite(n)) return n.toLocaleString(undefined, {maximumFractionDigits:2});
+  return esc(v);
+}
+
+function markerSize(mw) {
+  if (mw === null || mw === undefined || !Number.isFinite(Number(mw))) return 13;
+  const x = Number(mw);
+  return Math.max(13, Math.min(34, 12 + Math.log2(1 + x) * 2.2));
+}
+
+function markerClass(type) {
+  if (type === "interconnection_facility") return "dc-square";
+  if (type === "crypto_mining") return "dc-diamond";
+  return "dc-circle";
+}
+
+function popupHtml(d) {
+  const mw = d.capacity_mw == null ? "No published MW" : `${fmtNum(d.capacity_mw)} MW`;
+  let links = "";
+  if (Array.isArray(d.evidence_urls) && d.evidence_urls.length) {
+    const shown = d.evidence_urls.slice(0, 6).map((u, i) =>
+      `<a href="${esc(u)}" target="_blank" rel="noopener">Evidence ${i+1}</a>`
+    ).join(" · ");
+    links = `<div class="links"><b>Evidence:</b> ${shown}</div>`;
+  }
+
+  return `
+  <div class="popup">
+    <h3>${esc(d.facility_name)}</h3>
+    <div class="meta">${esc(d.facility_id)} · ${esc(typeLabels[d.facility_type] || d.facility_type)}</div>
+    <table>
+      <tr><td>Operator</td><td>${esc(d.operator)}</td></tr>
+      <tr><td>Lifecycle</td><td>${esc(statusLabels[d.status] || d.status)}</td></tr>
+      <tr><td>Capacity</td><td>${esc(mw)}</td></tr>
+      <tr><td>City</td><td>${esc(d.city)}</td></tr>
+      <tr><td>County</td><td>${esc(d.county)}</td></tr>
+      <tr><td>Address</td><td>${esc(d.address)}</td></tr>
+      <tr><td>Coordinates</td><td>${d.lat.toFixed(5)}, ${d.lon.toFixed(5)}</td></tr>
+      <tr><td>Precision</td><td>${esc(d.location_precision)}</td></tr>
+      <tr><td>Sources</td><td>${esc(d.sources)}</td></tr>
+      <tr><td>Last updated</td><td>${esc(d.last_updated)}</td></tr>
+    </table>
+    ${links}
+  </div>`;
+}
+
+function makeMarker(d) {
+  const size = markerSize(d.capacity_mw);
+  const color = statusColors[d.status] || statusColors.unknown;
+  const cls = markerClass(d.facility_type);
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="dc-marker ${cls}" style="width:${size}px;height:${size}px;background:${color};"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2]
+  });
+  const m = L.marker([d.lat, d.lon], {icon:icon});
+  m.bindTooltip(
+    `<b>${esc(d.facility_name)}</b><br>${esc(d.operator)}<br>` +
+    `${d.capacity_mw == null ? "MW: unknown" : "MW: " + fmtNum(d.capacity_mw)}`,
+    {direction:"top"}
+  );
+  m.bindPopup(popupHtml(d), {maxWidth:390});
+  return m;
+}
+
+function mwPass(d) {
+  const known = d.capacity_mw !== null && d.capacity_mw !== undefined && Number.isFinite(Number(d.capacity_mw));
+  const mw = known ? Number(d.capacity_mw) : null;
+  if (selectedMW === "all") return true;
+  if (selectedMW === "known") return known;
+  if (selectedMW === "unknown") return !known;
+  if (!known) return false;
+  if (selectedMW === "lt10") return mw < 10;
+  if (selectedMW === "10_49") return mw >= 10 && mw < 50;
+  if (selectedMW === "50_99") return mw >= 50 && mw < 100;
+  if (selectedMW === "100_299") return mw >= 100 && mw < 300;
+  if (selectedMW === "gte300") return mw >= 300;
+  return true;
+}
+
+function isVisible(d) {
+  if (!cryptoIncluded && d.facility_type === "crypto_mining") return false;
+  if (!activeStatuses.has(d.status)) return false;
+  if (selectedOperator !== "__ALL__" && d.operator !== selectedOperator) return false;
+  if (!mwPass(d)) return false;
+  return true;
+}
+
+function refreshMap() {
+  markerLayer.clearLayers();
+  let visible = 0;
+  let mwVisible = 0;
+
+  markerObjects.forEach(obj => {
+    if (isVisible(obj.data)) {
+      obj.marker.addTo(markerLayer);
+      visible += 1;
+      if (obj.data.capacity_mw !== null && obj.data.capacity_mw !== undefined) mwVisible += 1;
+    }
+  });
+
+  document.getElementById("visibleCount").textContent = visible;
+  document.getElementById("mwCount").textContent = mwVisible;
+
+  const btn = document.getElementById("cryptoToggle");
+  if (cryptoIncluded) {
+    btn.className = "togglebtn on";
+    btn.textContent = "✓ Crypto included";
+  } else {
+    btn.className = "togglebtn off";
+    btn.textContent = "Crypto excluded";
+  }
+}
+
+DATA.forEach(d => markerObjects.push({data:d, marker:makeMarker(d)}));
+const operators = [...new Set(DATA.map(d => d.operator).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+const opSelect = document.getElementById("operatorFilter");
+operators.forEach(op => {
+  const opt = document.createElement("option");
+  opt.value = op; opt.textContent = op;
+  opSelect.appendChild(opt);
+});
+const statuses = [...new Set(DATA.map(d => d.status))];
+const statusWrap = document.getElementById("statusButtons");
+
+statuses.forEach(st => {
+  const b = document.createElement("button");
+  b.className = "statusbtn";
+  b.dataset.status = st;
+  b.textContent = statusLabels[st] || st;
+  b.onclick = () => {
+    if (activeStatuses.has(st)) {
+      activeStatuses.delete(st); b.classList.add("inactive");
+    } else {
+      activeStatuses.add(st); b.classList.remove("inactive");
+    }
+    refreshMap();
+  };
+  statusWrap.appendChild(b);
+});
+document.getElementById("cryptoToggle").onclick = () => {
+  cryptoIncluded = !cryptoIncluded;
+  refreshMap();
+};
+
+opSelect.onchange = e => {
+  selectedOperator = e.target.value;
+  refreshMap();
+};
+
+document.getElementById("mwFilter").onchange = e => {
+  selectedMW = e.target.value;
+  refreshMap();
+};
+
+function fitVisible() {
+  const pts = markerObjects.filter(x => isVisible(x.data)).map(x => [x.data.lat, x.data.lon]);
+  if (pts.length) map.fitBounds(pts, {padding:[30,30]});
+}
+
+document.getElementById("resetBtn").onclick = () => {
+  cryptoIncluded = true;
+  activeStatuses = new Set(DATA.map(d => d.status));
+  selectedOperator = "__ALL__";
+  selectedMW = "all";
+  opSelect.value = "__ALL__";
+  document.getElementById("mwFilter").value = "all";
+  document.querySelectorAll(".statusbtn").forEach(b => b.classList.remove("inactive"));
+  refreshMap();
+  fitVisible();
+};
+
+function doSearch() {
+  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  if (!q) return;
+  const hit = markerObjects.find(x => {
+    const d = x.data;
+    const text = [d.facility_name,d.operator,d.city,d.county,d.facility_id].filter(Boolean).join(" ").toLowerCase();
+    return text.includes(q) && isVisible(d);
+  });
+  if (hit) {
+    map.setView([hit.data.lat, hit.data.lon], 13);
+    hit.marker.openPopup();
+  } else {
+    alert("No visible facility matched the search. Try resetting filters or including Crypto.");
+  }
+}
+
+document.getElementById("searchBtn").onclick = doSearch;
+document.getElementById("searchBox").addEventListener("keydown", e => {
+  if (e.key === "Enter") doSearch();
+});
+
+refreshMap();
+fitVisible();
+</script>
+</body>
+</html>

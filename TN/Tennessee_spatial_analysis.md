@@ -1,22 +1,22 @@
-# Tennessee Data Center空间分布分析：TN-first研究流程
+# Spatial Distribution of Tennessee Data Centers: A TN-First Research Workflow
 
-## 研究定位
+## Research Positioning
 
-> 研究区域：Tennessee  
-> 主要数据源：dcmap.us  
-> 当前任务：建立可复现的州级空间分布与基础设施关联分析  
-> 当前不做：全国数据整合、全国模型训练、未来选址预测  
-> 长期方向：只有TN流程通过数据与统计检验后，才考虑以同一规范扩展到其他州
+> - Study area: Tennessee
+> - Primary data source: dcmap.us
+> - Current objective: establish a reproducible state-level analysis of spatial distribution and infrastructure association
+> - Excluded from the current phase: national data integration, national model training, and future site prediction
+> - Long-term direction: expand the same standard to other states only after the Tennessee workflow passes its data and statistical quality gates
 
-本研究不把Tennessee简单视为全国分析的缩小版，而把它作为一个完整的州级研究对象。当前核心问题是：
+This study does not treat Tennessee as a reduced version of a national analysis. It treats the state as a complete research object. The central question is:
 
 \[
 \boxed{
-\text{在控制可开发土地与城市化背景后，Tennessee运营数据中心是否仍集中于特定基础设施环境？}
+\text{After controlling for developable land and urbanization, do operating data centers in Tennessee remain concentrated in specific infrastructure environments?}
 }
 \]
 
-研究逻辑为：
+The research sequence is:
 
 \[
 \text{Canonical Sites}
@@ -30,261 +30,259 @@
 \text{Exploratory Infrastructure Regimes}
 \]
 
-所有结论首先限定为Tennessee州内的观察性空间关联。除非有独立时间证据或政策证据，否则不使用因果性的“机制证明”表述。
+All conclusions are initially limited to observational spatial associations within Tennessee. Causal language such as "mechanism demonstrated" will not be used without independent temporal or policy evidence.
 
 ---
 
-# 1. 当前研究边界
+# 1. Current Research Boundaries
 
-## 1.1 研究对象
+## 1.1 Study Population
 
-主要研究总体为：
+The primary study population is:
 
 \[
-S_{op}=\{\text{dcmap.us中Tennessee内去重后的operational site/campus}\}
+S_{op}=\{\text{deduplicated operational sites or campuses in Tennessee recorded by dcmap.us}\}
 \]
 
-Under Construction和Planned / Approved项目单独保存，但不与Operational混合构成主要点模式。
+Under Construction and Planned / Approved projects are retained separately and are not combined with Operational facilities in the primary point pattern.
 
-状态分层为：
-
-| 状态 | 当前用途 | 是否进入主要点模式 |
+| Status | Current use | Included in primary point pattern |
 |---|---|---:|
-| Operational | 已投入服务的设施 | 是 |
-| Under Construction | 正在建设的设施 | 否，单独描述 |
-| Planned / Approved | 已宣布或获批但尚未建成的设施 | 否，单独描述 |
-| Paused | 已公开停滞但尚未放弃的项目 | 否 |
-| Cancelled | 已公开放弃、但由dcmap.us保留在建设记录中的项目 | 否 |
+| Operational | Facilities in service | Yes |
+| Under Construction | Facilities being built | No; described separately |
+| Planned / Approved | Announced or approved but not completed | No; described separately |
+| Paused | Publicly stalled but not abandoned | No |
+| Cancelled | Publicly abandoned projects retained by dcmap.us as development records | No |
 
-## 1.2 当前不回答的问题
+## 1.2 Questions Not Addressed in This Phase
 
-本阶段不回答：
+This phase does not determine:
 
-- Tennessee哪里最适合建设未来数据中心；
-- 某地是否一定会建设数据中心；
-- Tennessee结果是否能够直接代表美国；
-- 某项基础设施是否因果性导致数据中心落地。
+- where future data centers should be built in Tennessee;
+- whether a data center will necessarily be built at a particular location;
+- whether Tennessee findings directly represent the United States; or
+- whether any infrastructure variable causally determines data-center development.
 
-## 1.3 未来扩展边界
+## 1.3 Boundary for Future Expansion
 
-未来可能从TN扩展到其他州，但当前只保留以下可移植要求：
+The project may later expand beyond Tennessee, but the current phase retains only the following portable requirements:
 
-- 使用稳定的site与facility定义；
-- 使用统一的字段名称、单位和时间口径；
-- 保留数据来源、版本和处理记录；
-- 使用可替换的州边界与候选空间；
-- 不在TN阶段下载或分析全国数据。
-
----
-
-# 2. 研究问题与预设假设
-
-主假设应在查看最终显著性结果前固定。PCA、HDBSCAN和UMAP结果不得反向修改主假设。
-
-## H1：电力基础设施关联
-
-> 在控制可开发土地、城市化和市场位置后，运营数据中心仍比可用空间更接近变电站或高压输电环境。
-
-可能支持H1的观察：
-
-- 条件化背景下，站点到变电站距离显著更短；
-- 电力变量在点过程模型中具有稳定方向；
-- 不同空间划分下结论方向一致。
-
-可能否定或削弱H1的观察：
-
-- 控制城市化后效应消失；
-- 结果只由Nashville或Memphis少数站点驱动；
-- 换用不同可开发土地定义后方向改变。
-
-## H2：网络基础设施关联
-
-> 运营数据中心在商业高速光纤覆盖或高网络可达环境中出现得更频繁。
-
-需要避免的解释：
-
-- 光纤供应商数量可能只是城市化代理；
-- 当前光纤覆盖不能自动解释历史站点；
-- 发布记录数量不能直接等同于独立供应商数量。
-
-## H3：市场与基础设施的独立作用
-
-> 数据中心的电力或网络关联不能完全由距离城市市场更近来解释。
-
-如果加入市场和人口变量后，电力与网络变量失去稳定性，应报告：
-
-> 当前数据未显示其具有超出城市化背景的独立关联。
-
-## H4：容量尺度差异
-
-> 以site count和以MW capacity加权时，Tennessee的数据中心空间结构不同。
-
-这是count geography与capacity geography的对比，不假定哪一种更正确。
+- stable definitions of sites and facilities;
+- consistent field names, units, and temporal conventions;
+- preserved source, version, and processing records;
+- replaceable state boundaries and candidate domains; and
+- no national data download or analysis during the Tennessee phase.
 
 ---
 
-# 3. 第一阶段：建立dcmap.us Tennessee Canonical Dataset
+# 2. Research Questions and Preregistered Hypotheses
 
-任何空间统计之前，先完成数据对象定义。这个阶段是研究的质量门，不是普通清洗步骤。
+Primary hypotheses must be fixed before final significance results are inspected. PCA, HDBSCAN, and UMAP results must not be used to revise the primary hypotheses after the fact.
 
-## 3.1 两种分析单位
+## H1: Association With Electric Infrastructure
+
+> After controlling for developable land, urbanization, and market location, operating data centers remain closer than available space to substations or high-voltage transmission environments.
+
+Observations that may support H1 include:
+
+- significantly shorter site-to-substation distances under a conditional background;
+- a stable effect direction for electric variables in the point-process model; and
+- consistent conclusions across alternative spatial partitions.
+
+Observations that may reject or weaken H1 include:
+
+- disappearance of the effect after controlling for urbanization;
+- results driven only by a small number of Nashville or Memphis sites; or
+- reversal of the effect under a different definition of developable land.
+
+## H2: Association With Network Infrastructure
+
+> Operating data centers occur more frequently in areas with commercial high-speed fiber coverage or strong network accessibility.
+
+Interpretations to avoid:
+
+- fiber-provider count may merely proxy for urbanization;
+- present-day fiber coverage does not automatically explain historical sites; and
+- the number of published records is not necessarily the number of independent providers.
+
+## H3: Independent Roles of Market and Infrastructure
+
+> Associations with electric or network infrastructure cannot be explained entirely by proximity to urban markets.
+
+If electric and network variables lose stability after market and population controls are added, report:
+
+> The current data do not show an independent association beyond the urbanization background.
+
+## H4: Differences by Capacity Scale
+
+> The spatial structure of Tennessee data centers differs when measured by site count versus MW-weighted capacity.
+
+This hypothesis compares count geography with capacity geography; it does not assume that either representation is inherently more correct.
+
+---
+
+# 3. Phase One: Build the dcmap.us Tennessee Canonical Dataset
+
+Define the data objects before conducting any spatial statistics. This phase is a research quality gate, not a routine cleaning step.
+
+## 3.1 Two Units of Analysis
 
 ### Site/Campus Level
 
-用于：
+Used for:
 
-- 点模式分析；
-- KDE地图；
-- Ripley’s K/L；
-- 基础设施关联。
+- point-pattern analysis;
+- KDE maps;
+- Ripley's K/L; and
+- infrastructure association.
 
 ### Facility/Building Level
 
-用于：
+Used for:
 
-- 建筑数量；
-- 容量汇总；
-- 园区扩张；
-- 建设强度。
+- building counts;
+- capacity aggregation;
+- campus expansion; and
+- development intensity.
 
-原则：
+Principle:
 
 \[
-\boxed{\text{一个物理园区在主要空间分析中只贡献一个site point}}
+\boxed{\text{One physical campus contributes only one site point to the primary spatial analysis}}
 \]
 
-## 3.2 建议保留的核心字段
+## 3.2 Recommended Core Fields
 
-| 字段 | 含义 | 主要用途 |
+| Field | Meaning | Primary use |
 |---|---|---|
-| site_id | 去重后的独立物理站点ID | 主要分析主键 |
-| facility_id | dcmap.us设施记录ID | 来源追踪 |
-| parent_site_id | facility所属site/campus | 父子关系 |
-| site_name | 规范化站点名称 | 人工复核 |
-| operator | 设施公开关联的运营品牌 | 去重辅助与描述 |
-| owner / developer / anchor_tenant | 所有者、开发商与主要租户（如公开） | 角色区分与描述 |
-| latitude / longitude | 站点坐标 | 空间连接 |
-| coordinate_precision | 坐标精度等级 | 不确定性分析 |
-| county / market | 行政区与市场 | 分层和匹配 |
-| status | Operational等状态 | 样本分层 |
-| facility_type | 统一类型 | 异质性分析 |
-| capacity_mw | 已报告或估算的铭牌/规划容量，不等于当前负荷 | 容量加权 |
-| capacity_estimated | 容量为reported或estimated | 容量不确定性分析 |
-| opening_year / milestone_date | 首次运营年份或公开项目里程碑日期 | 时间分析 |
-| source_snapshot_date | 数据快照日期 | 可复现性 |
-| source_url | 来源页面 | 审核 |
-| review_flag | 是否需要人工判断 | 质量控制 |
+| site_id | Deduplicated physical-site identifier | Primary analytical key |
+| facility_id | dcmap.us facility-record identifier | Source tracing |
+| parent_site_id | Site or campus containing the facility | Parent-child relationship |
+| site_name | Normalized site name | Manual review |
+| operator | Publicly associated operating brand | Deduplication support and description |
+| owner / developer / anchor_tenant | Owner, developer, and principal tenant when public | Role separation and description |
+| latitude / longitude | Site coordinates | Spatial joins |
+| coordinate_precision | Coordinate precision class | Uncertainty analysis |
+| county / market | Administrative area and market | Stratification and matching |
+| status | Operational and other project states | Sample stratification |
+| facility_type | Standardized type | Heterogeneity analysis |
+| capacity_mw | Reported or estimated nameplate/planned capacity, not current load | Capacity weighting |
+| capacity_estimated | Whether capacity is reported or estimated | Capacity uncertainty analysis |
+| opening_year / milestone_date | First operating year or public project milestone | Temporal analysis |
+| source_snapshot_date | Data snapshot date | Reproducibility |
+| source_url | Source page | Audit |
+| review_flag | Whether manual judgment is required | Quality control |
 
-## 3.3 Site去重判断顺序
+## 3.3 Site Deduplication Sequence
 
-1. 使用dcmap.us记录的campus structure或multi-building关系。
-2. 检查相同规范化名称、运营商和地址。
-3. 检查坐标距离与共同园区证据。
-4. 多栋building属于同一campus时，保留全部facility成员，但只生成一个site。
-5. 相邻但运营商、地址或园区证据不同的设施不能仅凭距离自动合并。
-6. 无法确认时保留为独立site并标记review_flag，而不是强制合并。
+1. Use campus structures or multi-building relationships recorded by dcmap.us.
+2. Compare normalized names, operators, and addresses.
+3. Compare coordinate distance and shared-campus evidence.
+4. When multiple buildings belong to one campus, retain all facility members but create only one site.
+5. Do not automatically merge nearby facilities based on distance alone when operators, addresses, or campus evidence differ.
+6. When evidence is inconclusive, retain separate sites and set `review_flag` instead of forcing a merge.
 
-至少生成两张表：
+Produce at least two tables:
 
-| 表 | 内容 |
+| Table | Contents |
 |---|---|
-| canonical_sites | 每个独立site一行 |
-| site_facility_crosswalk | 每条facility如何映射到site及其依据 |
+| canonical_sites | One row per independent site |
+| site_facility_crosswalk | Mapping of each facility to a site, including the supporting rationale |
 
-## 3.4 数据源审查
+## 3.4 Source Audit
 
-在分析前记录：
+Record the following before analysis:
 
-- dcmap.us数据获得方式与快照日期；
-- dcmap.us使用条款、记录级数据访问授权与再分发限制；
-- Tennessee记录总数；
-- Campus、Facility、Building结构；
-- 状态字段定义；
-- 坐标精度；
-- capacity、capacity_estimated和时间字段缺失率；
-- 不同facility type的覆盖情况；
-- 基于公开记录编制可能产生的收录偏差。
+- the method and date of the dcmap.us snapshot;
+- dcmap.us terms of use, authorization for record-level access, and redistribution restrictions;
+- total Tennessee record count;
+- Campus, Facility, and Building structure;
+- status definitions;
+- coordinate precision;
+- missingness for capacity, `capacity_estimated`, and temporal fields;
+- coverage by facility type; and
+- potential inclusion bias introduced by compiling public records.
 
-dcmap.us不能在未验证前被称为Tennessee完整普查。研究表述应为：
+Do not describe dcmap.us as a complete Tennessee census before validation. Use this wording:
 
-> dcmap.us中可识别的Tennessee data-center sites。
+> Tennessee data-center sites identifiable in dcmap.us.
 
-dcmap.us公开Agent API只提供聚合结果，且使用条款不允许批量抓取或复制底层数据集。因此，本proposal中的记录级空间分析必须基于dcmap.us明确授权的数据导出或其他经许可的记录级访问方式；公开州级汇总页面只能用于核对总量，不能替代分析数据表。
-
----
-
-# 4. 第二阶段：定义Tennessee可用空间背景
-
-本研究不标注随机地点为“失败项目”，但必须定义数据中心可能被考虑的availability domain。
-
-## 4.1 三层空间背景
-
-### D0：Tennessee Land Baseline
-
-全州陆地区域，仅作为最宽松描述性基线。
-
-### D1：Developable-Land Baseline
-
-排除明显不可建设区域，例如：
-
-- 大型水体；
-- 保护地；
-- 明显不可接受的坡度；
-- 机场跑道安全范围；
-- 军事限制区；
-- 其他确定性不可建设地类。
-
-D1是主要推断背景。
-
-### D2：Urban/Industrial Matched Baseline
-
-在相同metro、工业或已开发土地环境内生成匹配背景，用于检验电力、网络和水资源变量是否只是城市化代理。
-
-## 4.2 防止循环控制
-
-当检验某个变量时，不能用该变量先定义背景。
-
-例如：
-
-- 检验变电站距离时，不用“距离变电站2 km内”定义D1；
-- 检验供水距离时，不先删除全部远离供水区的位置；
-- 检验光纤距离时，不用光纤覆盖定义候选域。
-
-否则结论会被研究设计预先固定。
-
-## 4.3 空间尺度
-
-主要空间单元建议使用一个固定的equal-area grid或H3分辨率。County和Census tract只用于描述或敏感性分析。
-
-至少比较：
-
-- 主尺度；
-- 一个更细尺度；
-- 一个更粗尺度。
-
-如果结论随尺度发生方向变化，应报告为尺度不稳定，而不是只保留最显著结果。
+The public dcmap.us Agent API provides aggregate results only, and its terms do not permit bulk scraping or copying of the underlying dataset. Record-level spatial analysis in this proposal must therefore use an explicitly authorized dcmap.us export or another licensed record-level access method. Public state summary pages may be used to check totals, but not as a substitute for the analytical table.
 
 ---
 
-# 5. 第三阶段：描述性空间分布
+# 4. Phase Two: Define the Tennessee Availability Background
 
-这一步只描述“在哪里”，不作机制或显著性结论。
+The study does not label random locations as "failed projects," but it must define an availability domain in which data-center development could plausibly be considered.
 
-## 5.1 基础地图
+## 4.1 Three Spatial Backgrounds
 
-分别绘制：
+### D0: Tennessee Land Baseline
 
-- Operational sites；
-- Under Construction sites；
-- Planned / Approved sites；
-- facility type；
-- site count；
-- capacity-weighted symbols；
-- coordinate precision或缺失状态。
+All land within the state, used only as the broadest descriptive baseline.
 
-Operational、Under Construction和Planned / Approved不得合成一个“现有站点”图层。
+### D1: Developable-Land Baseline
 
-## 5.2 两套空间表述
+Exclude clearly unsuitable areas, including:
+
+- major water bodies;
+- protected land;
+- clearly unacceptable slopes;
+- airport runway safety zones;
+- restricted military areas; and
+- other land classes known to be undevelopable.
+
+D1 is the primary inferential background.
+
+### D2: Urban/Industrial Matched Baseline
+
+Generate matched background locations within comparable metro, industrial, or developed-land environments. Use D2 to test whether electric, network, and water variables are merely proxies for urbanization.
+
+## 4.2 Avoiding Circular Controls
+
+Do not define the background with the variable being tested.
+
+For example:
+
+- when testing substation distance, do not define D1 as "within 2 km of a substation";
+- when testing water-service distance, do not first remove every location far from a water-service area; and
+- when testing fiber distance, do not use fiber coverage to define the candidate domain.
+
+Otherwise, the study design predetermines the conclusion.
+
+## 4.3 Spatial Scale
+
+Use one fixed equal-area grid or H3 resolution as the primary spatial unit. Counties and Census tracts are for description or sensitivity analysis only.
+
+Compare at least:
+
+- the primary scale;
+- one finer scale; and
+- one coarser scale.
+
+If the direction of a finding changes by scale, report scale instability instead of retaining only the most significant result.
+
+---
+
+# 5. Phase Three: Descriptive Spatial Distribution
+
+This phase describes where facilities are located; it does not make mechanistic or significance claims.
+
+## 5.1 Base Maps
+
+Map separately:
+
+- Operational sites;
+- Under Construction sites;
+- Planned / Approved sites;
+- facility type;
+- site count;
+- capacity-weighted symbols; and
+- coordinate precision or missing status.
+
+Do not combine Operational, Under Construction, and Planned / Approved records into one "existing sites" layer.
+
+## 5.2 Two Spatial Representations
 
 ### Site-count geography
 
@@ -292,7 +290,7 @@ Operational、Under Construction和Planned / Approved不得合成一个“现有
 \lambda_{count}(s)
 \]
 
-每个独立site权重为1。
+Give every independent site a weight of 1.
 
 ### Capacity geography
 
@@ -300,31 +298,31 @@ Operational、Under Construction和Planned / Approved不得合成一个“现有
 \lambda_{MW}(s)
 \]
 
-site按可核实MW加权。
+Weight sites by verifiable MW capacity.
 
-容量缺失站点不能自动填为0。容量图需要同时报告：
+Do not automatically fill missing capacity with zero. Capacity maps must also report:
 
-- 有容量记录的site比例；
-- 容量已知样本的空间覆盖；
-- 缺失是否集中于某类facility。
+- the percentage of sites with recorded capacity;
+- spatial coverage of the known-capacity sample; and
+- whether missingness is concentrated in a particular facility type.
 
-## 5.3 KDE的角色
+## 5.3 Role of KDE
 
-KDE用于：
+Use KDE to:
 
-- 展示Nashville、Memphis、Knoxville、Chattanooga等局部密度；
-- 对比count与capacity热点；
-- 比较不同bandwidth下地图稳定性。
+- display local density around Nashville, Memphis, Knoxville, Chattanooga, and other markets;
+- compare count and capacity hotspots; and
+- assess map stability across bandwidths.
 
-KDE不单独作为显著性证据。至少比较5、10、20和30 km，或依据最近邻距离设置数据驱动带宽并做敏感性分析。
+KDE alone is not evidence of statistical significance. Compare at least 5, 10, 20, and 30 km bandwidths, or select a data-driven bandwidth from nearest-neighbor distances and conduct sensitivity analysis.
 
 ---
 
-# 6. 第四阶段：主要统计检验
+# 6. Phase Four: Primary Statistical Tests
 
-## 6.1 首选方法：条件化空间点过程
+## 6.1 Preferred Method: Conditional Spatial Point Process
 
-主要模型采用inhomogeneous Poisson point process，或其等价的case-availability近似：
+Use an inhomogeneous Poisson point process, or an equivalent case-availability approximation, as the primary model:
 
 \[
 \lambda(s)
@@ -340,81 +338,81 @@ f_{land}(s)
 \right]
 \]
 
-背景点是对availability domain进行数值积分或抽样，不代表真实失败项目。
+Background points provide numerical integration or sampling over the availability domain; they do not represent actual failed projects.
 
-## 6.2 第一版核心变量
+## 6.2 First-Version Core Variables
 
-| 因素 | 第一版变量 | 判断边界 |
+| Factor | First-version variables | Interpretation boundary |
 |---|---|---|
-| 电力 | 变电站距离、输电线距离、电压等级 | 距离不等于剩余容量 |
-| 网络 | 商业高速光纤覆盖、供应商数或记录数 | 记录数与独立供应商数分开 |
-| 水 | 公共供水服务区距离 | 供水覆盖不等于可提供项目需水量 |
-| 市场 | metro距离、人口或就业密度 | 用于控制城市化 |
-| 土地 | 可开发土地、坡度、土地价值代理 | 历史与当前年份要区分 |
-| 交通/风险 | 仅保留定义稳定且可解释的少量变量 | 不堆积低质量字段 |
+| Electric power | Substation distance, transmission-line distance, voltage class | Proximity does not imply spare capacity |
+| Network | Commercial high-speed fiber coverage, provider count, or record count | Keep record count separate from independent-provider count |
+| Water | Distance to public water-service areas | Service coverage does not imply project-level water availability |
+| Market | Metro distance, population, or employment density | Controls for urbanization |
+| Land | Developable land, slope, and land-value proxies | Distinguish historical from current years |
+| Transportation/risk | A limited set of stable, interpretable variables | Do not accumulate low-quality fields |
 
-existing DC density不能进入regime或关联模型的解释变量，因为目标本身就是DC位置。
+Existing data-center density must not enter a regime or association model as an explanatory variable because data-center location is the outcome itself.
 
-## 6.3 变量时间边界
+## 6.3 Temporal Boundary of Variables
 
-主要横截面分析可以使用统一当前快照，但只能解释：
+A primary cross-sectional analysis may use one current snapshot, but it can explain only:
 
-> 当前站点与当前基础设施环境的空间对应关系。
+> The spatial correspondence between current sites and current infrastructure environments.
 
-只有获得接近opening year的历史基础设施数据后，才能解释历史选址条件。当前基础设施不能直接作为早期站点的决策时点变量。
+Historical siting conditions can be interpreted only when infrastructure data near each `opening_year` are available. Current infrastructure must not be treated as a direct decision-time variable for early sites.
 
-## 6.4 验证方式
+## 6.4 Validation Strategy
 
-不使用普通随机train/test split。采用：
+Do not use an ordinary random train/test split. Use:
 
-- 按metro或空间块划分的spatial cross-validation；
-- leave-one-metro-out敏感性分析；
-- Nashville、Memphis等单一区域影响诊断；
-- spatial block bootstrap置信区间；
-- 变量定义和背景域敏感性分析。
+- spatial cross-validation by metro area or spatial block;
+- leave-one-metro-out sensitivity analysis;
+- influence diagnostics for Nashville, Memphis, and other individual areas;
+- spatial block-bootstrap confidence intervals; and
+- sensitivity analysis for variable definitions and background domains.
 
-## 6.5 主要结果
+## 6.5 Primary Results to Report
 
-报告：
+Report:
 
-- 变量效应方向；
-- 效应量与置信区间；
-- 空间外验证性能；
-- 不同背景域下的稳定性；
-- 是否由单一metro驱动；
-- 不支持假设的结果。
+- effect direction;
+- effect size and confidence interval;
+- out-of-area validation performance;
+- stability across background domains;
+- whether results are driven by a single metro area; and
+- findings that do not support the hypotheses.
 
-显著性不能替代效应量和空间稳定性。
-
----
-
-# 7. 第五阶段：剩余空间聚集
-
-在主要协变量模型之后，使用inhomogeneous Ripley’s K/L检验：
-
-> 控制可开发土地、市场、电力、网络和水资源环境后，数据中心是否仍存在未解释聚集？
-
-分析要求：
-
-- 使用Tennessee边界的edge correction；
-- 使用与主要模型一致的availability domain；
-- 通过Monte Carlo envelope比较；
-- 预先固定距离范围；
-- 避免对每个距离分别进行未经校正的显著性解释。
-
-距离尺度可从1、5、10、20、50和100 km开始，但最终范围应结合TN站点数量和空间尺度确定。
-
-普通nearest-neighbor analysis仅作为直观补充，不作为主要推断证据。
+Statistical significance is not a substitute for effect size and spatial stability.
 
 ---
 
-# 8. 第六阶段：Infrastructure Regimes探索
+# 7. Phase Five: Residual Spatial Clustering
 
-这一阶段是探索性分析，不参与主要假设的显著性结论。
+After fitting the primary covariate model, use inhomogeneous Ripley's K/L to test:
 
-## 8.1 分析对象
+> After controlling for developable land, market, electric, network, and water environments, does unexplained clustering of data centers remain?
 
-在D1或D2背景中的所有空间cell上构造基础设施向量：
+Requirements:
+
+- use edge correction for the Tennessee boundary;
+- use the same availability domain as the primary model;
+- compare results with a Monte Carlo envelope;
+- preregister the distance range; and
+- avoid uncorrected significance interpretations at every individual distance.
+
+The distance scale may begin at 1, 5, 10, 20, 50, and 100 km, but the final range must reflect the number and spatial scale of Tennessee sites.
+
+Use ordinary nearest-neighbor analysis only as an intuitive supplement, not as the primary inferential evidence.
+
+---
+
+# 8. Phase Six: Exploratory Infrastructure Regimes
+
+This phase is exploratory and does not contribute significance claims to the primary hypotheses.
+
+## 8.1 Analytical Units
+
+Construct an infrastructure vector for every spatial cell in the D1 or D2 background:
 
 \[
 X_i=[
@@ -427,9 +425,9 @@ Hazard_i
 ]
 \]
 
-先对偏态距离和成本变量变换，再标准化。
+Transform skewed distance and cost variables before standardization.
 
-## 8.2 推荐流程
+## 8.2 Recommended Workflow
 
 \[
 X
@@ -443,13 +441,13 @@ Infrastructure\ Regimes
 DC\ Enrichment
 \]
 
-- PCA用于解释主要基础设施维度；
-- HDBSCAN用于发现稳定环境类型；
-- UMAP只作为辅助可视化；
-- 不解释UMAP坐标轴；
-- 不把cluster直接命名为高、中、低适宜性。
+- Use PCA to explain the principal infrastructure dimensions.
+- Use HDBSCAN to identify stable environmental types.
+- Use UMAP only as a supporting visualization.
+- Do not interpret UMAP axes.
+- Do not label clusters directly as high, medium, or low suitability.
 
-## 8.3 Regime enrichment
+## 8.3 Regime Enrichment
 
 \[
 ER_k=
@@ -457,284 +455,286 @@ ER_k=
 {P(Regime=k\mid Availability)}
 \]
 
-分母使用D1或D2 availability，不使用全州面积作为唯一基准。
+Use D1 or D2 availability in the denominator, rather than statewide area as the only baseline.
 
-报告：
+Report:
 
-- enrichment ratio；
-- log enrichment；
-- spatial block bootstrap置信区间；
-- 不同空间尺度和cluster参数下的稳定性；
-- HDBSCAN noise比例。
+- enrichment ratio;
+- log enrichment;
+- spatial block-bootstrap confidence intervals;
+- stability across spatial scales and cluster parameters; and
+- the HDBSCAN noise percentage.
 
-如果Regime A只对应“城市”，应直接命名为urban infrastructure regime，而不是创造过度抽象的机制名称。
-
----
-
-# 9. Facility Type、Capacity和Time的启动条件
-
-## 9.1 Facility-type分析
-
-dcmap.us定义的Hyperscale、Colocation、Enterprise和Neocloud可以分层，但只有满足以下条件才进行独立推断：
-
-- 类型定义能够稳定映射；
-- 每类具有足够独立sites；
-- 结果不由一个campus主导；
-- 坐标和关键特征覆盖率可接受。
-
-样本不足时只报告描述统计，或合并为少数有物理意义的大类。
-
-## 9.2 Capacity分析
-
-容量加权分析只有在以下条件下进入主要结果：
-
-- capacity统一按dcmap.us定义解释为铭牌或规划容量，而不是当前运营负荷；
-- reported与estimated容量分开报告并进行敏感性分析；
-- 缺失模式得到报告；
-- 极端大站点的影响进行leave-one-site-out检验。
-
-## 9.3 Temporal分析
-
-时间演化是后续可选模块。只有同时满足以下条件才启动：
-
-- opening year覆盖充分；
-- 各时期有足够独立sites；
-- 状态和年份定义一致；
-- 关键基础设施具有历史版本；
-- 当前数据库的收录时间偏差能够评估。
-
-否则只能描述不同opening cohort的当前空间分布，不能写成历史选址机制变化。
+If Regime A merely represents urban locations, name it an "urban infrastructure regime" rather than inventing an overly abstract mechanism.
 
 ---
 
-# 10. 方法分级与取舍
+# 9. Activation Conditions for Facility Type, Capacity, and Time
 
-## 10.1 主要方法
+## 9.1 Facility-Type Analysis
 
-- Campus/site canonicalization；
-- developable-land availability domain；
-- conditional point-process model；
-- spatial cross-validation。
+The dcmap.us categories Hyperscale, Colocation, Enterprise, and Neocloud may be stratified only when:
 
-## 10.2 次级诊断
+- type definitions map consistently;
+- each class contains enough independent sites;
+- one campus does not dominate the result; and
+- coordinate and key-feature coverage is acceptable.
 
-- KDE；
-- count与capacity地图；
-- inhomogeneous Ripley’s K/L；
-- leave-one-metro-out；
-- matched Monte Carlo。
+When samples are insufficient, report descriptive statistics only or combine records into a small number of physically meaningful groups.
 
-## 10.3 探索性方法
+## 9.2 Capacity Analysis
 
-- PCA；
-- HDBSCAN；
-- regime enrichment；
-- UMAP visualization；
-- facility-type和temporal stratification。
+Capacity-weighted analysis enters the primary results only when:
 
-## 10.4 当前不作为核心的方法
+- capacity is consistently interpreted under the dcmap.us definition as nameplate or planned capacity, not current operating load;
+- reported and estimated capacity are reported separately and subjected to sensitivity analysis;
+- missingness patterns are reported; and
+- the influence of exceptionally large sites is tested with leave-one-site-out analysis.
 
-- 对原始count同时运行Moran’s I、LISA和Getis-Ord全部检验；
-- 使用DBSCAN给少量DC点强制定义市场；
-- 在全州uniform random结果上作主要结论；
-- 用existing DC density解释DC分布；
-- 根据TN结果反向修改预设假设或分析阈值；
-- 把无监督cluster称为suitability grade。
+## 9.3 Temporal Analysis
 
----
+Temporal development is an optional later module. Activate it only when:
 
-# 11. Multiple Testing与结果解释
+- `opening_year` coverage is sufficient;
+- each period contains enough independent sites;
+- status and year definitions are consistent;
+- key infrastructure layers have historical versions; and
+- inclusion-time bias in the current database can be evaluated.
 
-主假设数量应保持有限。建议H1–H4为预先声明问题，其余均标记为探索性。
-
-如果对多个基础设施变量、距离阈值或facility type重复检验，应：
-
-- 报告检验总数；
-- 使用FDR或其他适当校正；
-- 报告效应量与置信区间；
-- 保存不显著结果；
-- 不根据显著性选择bandwidth、空间尺度或背景域。
-
-核心表述分为：
-
-- **观察证据：**数据中直接计算出的结果；
-- **模型推断：**在模型假设下得到的关联；
-- **候选解释：**可能的基础设施或市场原因；
-- **不能确认：**数据无法区分的替代解释。
+Otherwise, describe only the present-day spatial distribution of different opening cohorts; do not characterize the result as a change in historical siting mechanisms.
 
 ---
 
-# 12. Adversarial Review：哪些结果会使研究结论变弱？
+# 10. Method Tiers and Priorities
 
-以下情况必须被视为实质性反证或限制：
+## 10.1 Primary Methods
 
-1. 控制urban/industrial背景后，电力和网络效应消失。
-2. 结论只在statewide uniform背景下显著。
-3. Nashville或Memphis任一区域删除后效应方向改变。
-4. Site去重规则稍作改变，聚集结论明显变化。
-5. dcmap.us坐标或状态存在系统性错误。
-6. Capacity结果完全由一个超大型campus驱动。
-7. PCA/HDBSCAN regimes随空间尺度或参数剧烈改变。
-8. 当前基础设施变量无法代表站点建设年份。
-9. dcmap.us基于公开记录的编制方式对小型、私有或早期设施存在明显漏报。
+- Campus/site canonicalization;
+- developable-land availability domain;
+- conditional point-process model; and
+- spatial cross-validation.
 
-这些结果不能被隐藏在平均指标中，应进入主文限制或敏感性分析。
+## 10.2 Secondary Diagnostics
 
----
+- KDE;
+- count and capacity maps;
+- inhomogeneous Ripley's K/L;
+- leave-one-metro-out analysis; and
+- matched Monte Carlo analysis.
 
-# 13. TN阶段交付物
+## 10.3 Exploratory Methods
 
-## 13.1 数据产物
+- PCA;
+- HDBSCAN;
+- regime enrichment;
+- UMAP visualization; and
+- facility-type and temporal stratification.
 
-- dcmap.us Tennessee授权数据快照说明；
-- canonical_sites；
-- site_facility_crosswalk；
-- status与facility type映射表；
-- capacity和opening year缺失报告；
-- Tennessee availability domain；
-- site-to-infrastructure feature table；
-- 每个特征的来源、年份、单位和空间处理说明。
+## 10.4 Methods Not Treated as Core in the Current Phase
 
-## 13.2 图表
-
-1. Tennessee operational、under-construction和planned/approved分层地图；
-2. Site count KDE；
-3. Capacity-weighted KDE；
-4. D0、D1和D2背景地图；
-5. 主要基础设施距离分布；
-6. 空间点过程效应图；
-7. Residual Ripley’s L envelope；
-8. PCA loading与regime地图；
-9. Regime enrichment及置信区间；
-10. 数据缺失和坐标精度图。
-
-## 13.3 结果表
-
-- Canonicalization汇总；
-- 主假设与统计结果；
-- 不同availability domain敏感性；
-- leave-one-metro-out结果；
-- count与capacity差异；
-- 探索性regime稳定性；
-- 未通过的数据质量门。
+- running Moran's I, LISA, and every Getis-Ord test on raw counts;
+- using DBSCAN to force a small number of data-center points into market clusters;
+- basing primary conclusions on statewide uniform-random results;
+- explaining data-center distribution with existing data-center density;
+- revising preregistered hypotheses or analytical thresholds in response to Tennessee results; and
+- describing unsupervised clusters as suitability grades.
 
 ---
 
-# 14. 阶段质量门
+# 11. Multiple Testing and Interpretation
 
-## Gate A：数据对象可用
+Keep the number of primary hypotheses limited. H1-H4 should be preregistered; all other analyses should be labeled exploratory.
 
-必须满足：
+When testing multiple infrastructure variables, distance thresholds, or facility types:
 
-- parent-child关系得到处理；
-- site去重规则可复现；
-- 状态定义明确；
-- 坐标错误和重复记录有复核结果。
+- report the total number of tests;
+- use FDR or another appropriate correction;
+- report effect sizes and confidence intervals;
+- retain nonsignificant results; and
+- do not choose bandwidth, spatial scale, or background domain based on significance.
 
-未满足则停止空间统计。
+Separate the language of conclusions into:
 
-## Gate B：主要空间变量可用
-
-必须满足：
-
-- 基础设施图层覆盖Tennessee；
-- 单位和投影统一；
-- 图层年份已记录；
-- 距离和重叠计算通过抽样检查。
-
-未满足则只发布描述性地图。
-
-## Gate C：统计推断可用
-
-必须满足：
-
-- Operational独立site数量足以支持所选模型；
-- spatial folds不会产生空测试区域；
-- 结果不完全由一个metro驱动；
-- sensitivity analysis能够运行。
-
-未满足则不报告强推断。
-
-## Gate D：扩展模块可用
-
-Facility type、capacity和temporal分析分别通过自身的数据量、定义和时间条件后才启动。它们不是主流程的必需条件。
+- **Observed evidence:** results calculated directly from the data;
+- **Model inference:** associations obtained under model assumptions;
+- **Candidate explanation:** possible infrastructure or market explanations; and
+- **Unresolved:** alternative explanations that the data cannot distinguish.
 
 ---
 
-# 15. 优化后的TN工作流
+# 12. Adversarial Review: What Would Weaken the Findings?
 
-    dcmap.us Tennessee Authorized Snapshot
-                │
-                ▼
-    Source and License Audit
-                │
-                ▼
-    Campus / Site Canonicalization
-                │
-                ├── canonical_sites
-                └── site_facility_crosswalk
-                │
-                ▼
-    Status and Type Stratification
-                │
-                ▼
-    Tennessee Availability Domains
-                │
-                ├── D0 State Land
-                ├── D1 Developable Land
-                └── D2 Urban/Industrial Matched
-                │
-                ▼
-    Descriptive Mapping
-                │
-                ├── Operational / Under Construction / Planned or Approved
-                ├── Site Count
-                └── Capacity Weighted
-                │
-                ▼
-    Conditional Point-Process Analysis
-                │
-                ├── Power
-                ├── Fiber
-                ├── Water
-                ├── Market
-                └── Land
-                │
-                ▼
-    Spatial Validation and Residual K/L
-                │
-                ▼
-    Exploratory Infrastructure Regimes
-                │
-                ├── PCA
-                ├── HDBSCAN
-                └── Enrichment
-                │
-                ▼
-    Optional Type / Capacity / Temporal Modules
-                │
-                ▼
-    Tennessee Findings and Limitations
+Treat the following as material counterevidence or limitations:
+
+1. Electric and network effects disappear after controlling for the urban/industrial background.
+2. Findings are significant only under a statewide uniform background.
+3. Removing either Nashville or Memphis reverses the effect direction.
+4. Small changes to site-deduplication rules substantially change the clustering result.
+5. dcmap.us coordinates or statuses contain systematic errors.
+6. Capacity results are entirely driven by one exceptionally large campus.
+7. PCA/HDBSCAN regimes change sharply across spatial scales or parameter settings.
+8. Current infrastructure variables cannot represent conditions in each site's development year.
+9. The public-record compilation method used by dcmap.us materially undercounts small, private, or early-stage facilities.
+
+Do not hide these outcomes in average metrics. Include them in the main limitations or sensitivity analysis.
 
 ---
 
-# 16. 当前最重要的下一步
+# 13. Tennessee-Phase Deliverables
 
-当前不应首先计算KDE、PCA或训练模型。第一项任务是完成：
+## 13.1 Data Products
+
+- documentation of the authorized dcmap.us Tennessee snapshot;
+- `canonical_sites`;
+- `site_facility_crosswalk`;
+- status and facility-type mapping tables;
+- capacity and `opening_year` missingness reports;
+- Tennessee availability domains;
+- site-to-infrastructure feature table; and
+- source, year, unit, and spatial-processing documentation for each feature.
+
+## 13.2 Figures
+
+1. Stratified Tennessee maps for Operational, Under Construction, and Planned / Approved facilities;
+2. site-count KDE;
+3. capacity-weighted KDE;
+4. D0, D1, and D2 background maps;
+5. distributions of primary infrastructure distances;
+6. spatial point-process effect plots;
+7. residual Ripley's L envelope;
+8. PCA loading and regime maps;
+9. regime enrichment with confidence intervals; and
+10. missing-data and coordinate-precision maps.
+
+## 13.3 Result Tables
+
+- canonicalization summary;
+- primary hypotheses and statistical results;
+- sensitivity across availability domains;
+- leave-one-metro-out results;
+- count-versus-capacity differences;
+- exploratory regime stability; and
+- failed data quality gates.
+
+---
+
+# 14. Phase Quality Gates
+
+## Gate A: Usable Data Objects
+
+Required:
+
+- parent-child relationships are resolved;
+- site-deduplication rules are reproducible;
+- status definitions are explicit; and
+- coordinate errors and duplicate records have review outcomes.
+
+Stop spatial statistics if these conditions are not met.
+
+## Gate B: Usable Primary Spatial Variables
+
+Required:
+
+- infrastructure layers cover Tennessee;
+- units and projections are consistent;
+- layer years are recorded; and
+- sampled checks validate distance and overlap calculations.
+
+Publish descriptive maps only if these conditions are not met.
+
+## Gate C: Usable Statistical Inference
+
+Required:
+
+- enough independent Operational sites exist for the selected model;
+- spatial folds do not create empty test regions;
+- one metro area does not completely drive the findings; and
+- sensitivity analyses can be run.
+
+Do not report strong inference if these conditions are not met.
+
+## Gate D: Usable Extension Modules
+
+Activate facility-type, capacity, and temporal analyses only after each passes its own sample-size, definition, and temporal requirements. They are not required components of the primary workflow.
+
+---
+
+# 15. Optimized Tennessee Workflow
+
+```text
+dcmap.us Tennessee Authorized Snapshot
+            |
+            v
+Source and License Audit
+            |
+            v
+Campus / Site Canonicalization
+            |
+            +-- canonical_sites
+            +-- site_facility_crosswalk
+            |
+            v
+Status and Type Stratification
+            |
+            v
+Tennessee Availability Domains
+            |
+            +-- D0 State Land
+            +-- D1 Developable Land
+            +-- D2 Urban/Industrial Matched
+            |
+            v
+Descriptive Mapping
+            |
+            +-- Operational / Under Construction / Planned or Approved
+            +-- Site Count
+            +-- Capacity Weighted
+            |
+            v
+Conditional Point-Process Analysis
+            |
+            +-- Power
+            +-- Fiber
+            +-- Water
+            +-- Market
+            +-- Land
+            |
+            v
+Spatial Validation and Residual K/L
+            |
+            v
+Exploratory Infrastructure Regimes
+            |
+            +-- PCA
+            +-- HDBSCAN
+            +-- Enrichment
+            |
+            v
+Optional Type / Capacity / Temporal Modules
+            |
+            v
+Tennessee Findings and Limitations
+```
+
+---
+
+# 16. Most Important Next Step
+
+Do not begin by calculating KDE or PCA or by training a model. The first task is to complete:
 
 \[
 \boxed{\text{dcmap.us Tennessee Canonical Site Table}}
 \]
 
-具体顺序：
+Sequence:
 
-1. 获得并冻结经dcmap.us许可的Tennessee记录级数据快照；
-2. 列出原始字段、状态值和facility type；
-3. 建立Campus与child facility关系；
-4. 形成site-level去重结果；
-5. 人工复核模糊合并；
-6. 统计Operational独立site数量；
-7. 报告capacity、opening year和坐标精度；
-8. 根据实际样本量决定哪些分析模块能够启动。
+1. Obtain and freeze an authorized record-level dcmap.us snapshot for Tennessee.
+2. List the raw fields, status values, and facility types.
+3. Establish Campus and child-facility relationships.
+4. Produce the deduplicated site-level result.
+5. Manually review ambiguous merges.
+6. Count independent Operational sites.
+7. Report capacity, `opening_year`, and coordinate precision.
+8. Use the actual sample size to determine which analytical modules can begin.
 
-完成这一步后，再决定主要空间单元、availability domain和第一版基础设施变量。全国扩展不属于当前阶段，也不应影响TN数据对象和主要假设的判断。
+After completing these steps, select the primary spatial unit, availability domain, and first-version infrastructure variables. National expansion is outside the current phase and must not influence the definition of Tennessee data objects or primary hypotheses.

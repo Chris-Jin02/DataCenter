@@ -4,7 +4,7 @@ This repository now follows a **Tennessee-first** research strategy. The active 
 
 ## Interactive map
 
-[Open the Tennessee interactive data-center map](https://chris-jin02.github.io/DataCenter/map/)
+[Open the Tennessee interactive data-center map](https://chris-jin02.github.io/DataCenter/Config/)
 
 ## Projects
 

@@ -29,7 +29,8 @@ See [`Map/README.md`](Map/README.md) for source attribution, the map legend, con
 ```text
 TN/
 ├── README.md
-├── Tennessee_spatial_analysis.md
+├── Proposal/
+│   └── Tennessee_spatial_analysis.md
 ├── dataset/
 │   ├── tennessee_public_data_centers.xlsx
 │   └── Tennessee Data Center Dataset Update and Compatibility Specification.md
@@ -44,7 +45,7 @@ TN/
 
 ### Research and analysis
 
-- [`Tennessee_spatial_analysis.md`](Tennessee_spatial_analysis.md) defines the research questions, analytical scope, spatial methods, and validation strategy.
+- [`Proposal/Tennessee_spatial_analysis.md`](Proposal/Tennessee_spatial_analysis.md) defines the research questions, analytical scope, spatial methods, and validation strategy.
 
 ### Dataset
 

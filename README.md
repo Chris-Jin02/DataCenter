@@ -2,6 +2,10 @@
 
 This repository now follows a **Tennessee-first** research strategy. The active first-stage work focuses on building and analyzing a verified Tennessee data-center inventory, while the national framework remains available as a broader research foundation.
 
+## Interactive map
+
+[Open the Tennessee interactive data-center map](https://chris-jin02.github.io/DataCenter/map/)
+
 ## Projects
 
 ### [TN — Tennessee Data Center Research](TN/)

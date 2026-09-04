@@ -225,29 +225,47 @@ const typeLabels = {
   crypto_mining: "Crypto mining"
 };
 
-const map = L.map("map", { zoomControl:false, preferCanvas:true, attributionControl:false }).setView([35.85, -86.35], 7);
+const map = L.map("map", {
+  zoomControl: false,
+  preferCanvas: true,
+  attributionControl: false,
+  zoomAnimation: true,
+  markerZoomAnimation: true,
+  fadeAnimation: true,
+  zoomSnap: 0.25,
+  zoomDelta: 0.25,
+  wheelDebounceTime: 20,
+  wheelPxPerZoomLevel: 90
+}).setView([35.85, -86.35], 7);
 L.control.zoom({position:"bottomright"}).addTo(map);
 const positron = L.maplibreGL({
   style: "https://tiles.openfreemap.org/styles/positron",
-  attributionControl: false
-}).addTo(map);
+  attributionControl: false,
+  fadeDuration: 0,
+  renderWorldCopies: false
+});
 
 const liberty = L.maplibreGL({
   style: "https://tiles.openfreemap.org/styles/liberty",
-  attributionControl: false
+  attributionControl: false,
+  fadeDuration: 0,
+  renderWorldCopies: false
 });
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
-    maxZoom:19
+    maxZoom:19,
+    updateWhenIdle:true,
+    updateWhenZooming:false,
+    keepBuffer:4
   }
-);
+).addTo(map);
 
 L.control.layers(
   {
     "OpenFreeMap · Positron": positron,
     "OpenFreeMap · Liberty": liberty,
-    "OpenStreetMap · Standard": osm
+    "OpenStreetMap · Standard (smooth default)": osm
   },
   {},
   {position:"topright", collapsed:true}

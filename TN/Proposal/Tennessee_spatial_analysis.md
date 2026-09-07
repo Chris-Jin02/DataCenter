@@ -17,11 +17,11 @@ The central research question is:
 
 \[
 \boxed{
-\text{Which measurable infrastructure, land, market, and risk conditions consistently distinguish the 61 Master locations from feasible Tennessee locations?}
+\text{Which measurable infrastructure, land, market, and risk conditions consistently distinguish the 72 spatially eligible Tennessee presences from feasible Tennessee locations?}
 }
 \]
 
-The available data identify 61 Master records and 16 Candidate_Sites records, but they do not provide a representative sample of locations that developers considered and rejected. All 61 Master records enter the main analysis with full presence weight. Candidate records with usable coordinates enter the same model with lower confidence weights. The models therefore estimate relative spatial association, ranking, and similarity within a defined availability domain. They do not estimate the unconditional probability that a data center will be built or operate successfully.
+The available data identify 61 Master records and 16 Candidate_Sites records, but they do not provide a representative sample of locations that developers considered and rejected. The spatial model uses 60 confirmed, mappable Master records and 12 unlinked, mappable Candidate records. One Master record is retained for source traceability as an `unconfirmed_candidate` and excluded from spatial training; four Candidate records lack coordinates and one is linked to an existing Master. The models therefore estimate relative spatial association, ranking, and similarity within a defined availability domain. They do not estimate the unconditional probability that a data center will be built or operate successfully.
 
 The research sequence is:
 
@@ -43,9 +43,9 @@ Unsupervised learning will identify infrastructure environments and measure simi
 
 ## Current Tennessee data foundation
 
-The Phase 1 frozen workbook contains 61 Master records: 50 core data-center or interconnection records and 11 crypto-mining records. The main analysis includes all 61 records together, regardless of status, facility type, or analysis scope. Each Master record contributes one presence point with weight 1.
+The Phase 1 workbook contains 61 Master records: 50 core data-center or interconnection records and 11 crypto-mining records. The audit cohort retains all 61 records, but the spatial model excludes the one record with `analysis_scope=unconfirmed_candidate`. The remaining 60 confirmed, mappable Master records each contribute one presence point with weight 1; status and facility type remain pooled rather than split into separate models.
 
-All 61 Master records have coordinate pairs. Forty-two have exact or address/site-level precision, and 41 have high location confidence. Coordinate precision and confidence remain quality fields but do not determine whether a Master record enters the pooled sample. The workbook also tracks 16 candidate sites. Thirteen currently have coordinate pairs and can enter spatial modeling after duplicate checks, giving a current maximum of 74 mapped training locations. The other three remain in the data-enrichment queue until their locations are resolved.
+All 61 Master records retain coordinate pairs in the audit inventory. Forty-two have exact or address/site-level precision, and 41 have high location confidence. One low-confidence, area-level Master coordinate is deliberately excluded because project confirmation remains unresolved. The workbook also tracks 16 candidate sites: 12 have usable, unlinked coordinates and enter spatial modeling after duplicate checks; four lack coordinates, and one is linked to an existing Master. The current spatial-training sample therefore contains 72 locations with a baseline weight sum of 68.0. Review Queue items are closed with evidence rather than treated as unresolved training points.
 
 Published capacity is available for 15 of the 61 Master records and is concentrated in a small number of large projects. Capacity-weighted inference is inactive until coverage and influence requirements are met. Opening-year coverage is also insufficient for historical siting inference.
 
@@ -68,10 +68,10 @@ The system is a screening tool. A high score means that a location ranks favorab
 The weighted presence sample is:
 
 \[
-S_{train}=S_{Master}\cup S_{Candidate,mappable}
+S_{train}=S_{Master,confirmed\_mappable}\cup S_{Candidate,unlinked\_mappable}
 \]
 
-Every Master record remains in the main sample after identity and coordinate checks. Records are not split by `status_normalized`, `facility_type`, or `analysis_scope` for model fitting. These fields remain available for describing the sample and interpreting possible source-composition effects.
+Confirmed, mappable Master records remain in the main sample after identity and coordinate checks. A Master row explicitly labeled `analysis_scope=unconfirmed_candidate` is retained in the audit inventory but excluded from spatial fitting. Records are otherwise not split by `status_normalized` or `facility_type`; these fields remain available for describing the sample and interpreting possible source-composition effects.
 
 Candidate_Sites records with coordinates enter the same model as partial presences. Their initial weights are fixed before feature inspection:
 
@@ -153,7 +153,7 @@ Capacity, facility-type subclasses, and historical development remain conditiona
 
 ### Site or campus level
 
-Each of the 61 frozen Master records contributes one full-weight point to the primary spatial analysis. Each eligible Candidate contributes one lower-weight point. Identity checks may correct documentation errors, but the analytical cohort preserves all 61 Master IDs and does not collapse records for the main model.
+The audit cohort preserves all 61 Master IDs. The primary spatial analysis uses 60 confirmed, mappable Master records at full weight and 12 eligible, unlinked Candidate records at lower confidence weights. Identity checks may correct documentation errors, but linked Candidate evidence does not create a second point.
 
 ### Facility or building level
 
@@ -193,7 +193,7 @@ Before spatial modeling:
 1. resolve or explicitly flag campus and child-facility relationships without removing Master records from the pooled cohort;
 2. confirm that every one of the 61 Master IDs appears exactly once in `canonical_sites`;
 3. reconcile included raw records with the crosswalk;
-4. confirm that all 61 Master IDs enter once with weight 1 and each eligible Candidate enters once with its predeclared confidence weight;
+4. confirm that 60 confirmed, mappable Master IDs enter once with weight 1, that the `unconfirmed_candidate` Master record is excluded, and that each eligible unlinked Candidate enters once with its predeclared confidence weight;
 5. record the handling of ambiguous entity matches;
 6. report capacity, temporal, and feature missingness;
 7. identify sites requiring coordinate sensitivity analysis; and
@@ -302,7 +302,7 @@ Statewide held-out outcomes are not used for feature selection before final eval
 
 Map separately:
 
-- all 61 Master locations and spatially usable Candidate locations as the mapped training sample;
+- 60 confirmed, mappable Master locations and 12 eligible, unlinked Candidate locations as the mapped training sample;
 - Candidate confidence weights through symbol size or another explicit visual channel;
 - status, facility type, and analysis scope as descriptive overlays;
 - coordinate precision and confidence;
@@ -442,7 +442,7 @@ ROC-AUC, precision-recall metrics, or Brier scores may be reported only with an 
 
 ## 9.3 External and prospective checks
 
-All 61 Master records and all spatially usable Candidate records enter primary training under the stated weights. Candidate records without coordinates remain outside spatial fitting until location evidence is added. Future records added after the freeze are not used to revise an already registered evaluation model.
+The 60 confirmed, mappable Master records and 12 eligible, unlinked Candidate records enter primary training under the stated weights. Candidate records without coordinates, linked duplicates, and the Master record labeled `unconfirmed_candidate` remain outside spatial fitting. Future records added after the freeze are not used to revise an already registered evaluation model.
 
 Facilities added after the freeze date provide the strongest prospective ranking test. Their evaluation must preserve the earlier model, candidate domain, features, and score version.
 
@@ -532,7 +532,7 @@ Required:
 - complete crosswalk and cohort roles;
 - explicit lifecycle and facility-type definitions;
 - reviewed duplicate and coordinate issues; and
-- a frozen weighted presence sample containing all 61 Master records and every eligible Candidate record.
+- a frozen audit cohort containing all 61 Master records and 16 Candidate records, plus a 72-location spatial subset containing 60 confirmed Master and 12 eligible, unlinked Candidate records.
 
 ## Gate B: Usable feature system
 
@@ -652,7 +652,7 @@ Frozen Multisource Tennessee Inventory
                 v
 Canonical Sites and Crosswalk
                 |
-                +-- All 61 Master Records at Weight 1
+                +-- 60 Confirmed, Mappable Master Records at Weight 1
                 +-- Mappable Candidates at Confidence Weights
                 +-- Duplicate and Coordinate Checks
                 |
@@ -708,8 +708,8 @@ The next task is to create an analysis-ready weighted presence sample and a vers
 Required sequence:
 
 1. produce `canonical_sites` and `site_facility_crosswalk` from the frozen workbook;
-2. confirm that all 61 Master records enter once with weight 1;
-3. add the 13 currently mappable Candidate records using the predeclared confidence weights;
+2. confirm that 60 confirmed, mappable Master records enter once with weight 1 and the `unconfirmed_candidate` Master is excluded;
+3. add the 12 currently mappable, unlinked Candidate records using the predeclared confidence weights;
 4. resolve coordinates for the remaining three Candidate records and prevent Master-Candidate duplicate points;
 5. reconcile every included raw record with a site or supporting-evidence role;
 6. publish the Gate A missingness, weighting, and coordinate-uncertainty report;

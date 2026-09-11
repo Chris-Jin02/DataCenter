@@ -6,11 +6,11 @@ This project maintains a public Tennessee data-center inventory, an interactive 
 
 ## Current Snapshot
 
-Snapshot checked: September 4, 2026.
+Snapshot checked: September 8, 2026.
 
 - **61 Master records**: 50 core data-center or interconnection records and 11 crypto-mining records.
-- **16 candidate sites**: tracked separately from confirmed Master records.
-- **13 mappable candidates**: candidate records with both latitude and longitude.
+- **16 Candidate records**: tracked separately from confirmed Master records.
+- **75 unique analysis locations**: 61 Master locations plus 14 independent Candidate locations after linked and shared sites are reconciled.
 
 Unknown values remain blank rather than being estimated. Candidate sites do not change confirmed-facility counts.
 

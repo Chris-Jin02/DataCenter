@@ -260,13 +260,19 @@ const osm = L.tileLayer(
     keepBuffer:4
   }
 );
+const offline = L.layerGroup();
 const defaultBasemap = "__DEFAULT_BASEMAP__";
-const defaultLayer = defaultBasemap === "openstreetmap_standard" ? osm : positron;
+const defaultLayer = defaultBasemap === "openstreetmap_standard"
+  ? osm
+  : defaultBasemap === "openfreemap_positron"
+    ? positron
+    : offline;
 defaultLayer.addTo(map);
 
 L.control.layers(
   {
-    "OpenFreeMap · Positron (default for local files)": positron,
+    "Offline · Tennessee boundary (default for local files)": offline,
+    "OpenFreeMap · Positron": positron,
     "OpenFreeMap · Liberty": liberty,
     "OpenStreetMap · Standard": osm
   },
@@ -281,14 +287,7 @@ map.createPane('tnBoundaryPane');
 map.getPane('tnBoundaryPane').style.zIndex = 500;
 map.getPane('tnBoundaryPane').style.pointerEvents = 'none';
 
-const CENSUS_TN_URL =
-  "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/10/query" +
-  "?where=STUSAB%3D%27TN%27" +
-  "&outFields=NAME%2CSTUSAB%2CSTATE" +
-  "&returnGeometry=true" +
-  "&outSR=4326" +
-  "&geometryPrecision=5" +
-  "&f=geojson";
+const TN_BOUNDARY = __TN_BOUNDARY_GEOJSON__;
 
 let tnBoundaryLayer = null;
 let tnOutsideMaskLayer = null;
@@ -309,52 +308,43 @@ function exteriorRingsFromGeometry(geometry) {
   }
   return [];
 }
-async function loadOfficialTennesseeBoundary() {
-  try {
-    const response = await fetch(CENSUS_TN_URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const geojson = await response.json();
-    if (!geojson.features || !geojson.features.length) {
-      throw new Error("Tennessee feature was not returned by TIGERweb");
+
+function loadTennesseeBoundary() {
+  const tnFeature = TN_BOUNDARY;
+  tnBoundaryLayer = L.geoJSON(tnFeature, {
+    pane: 'tnBoundaryPane',
+    interactive: false,
+    style: {
+      color: '#111827',
+      weight: 3.2,
+      opacity: 0.96,
+      fillColor: '#edf2f7',
+      fillOpacity: 0.92
     }
+  }).addTo(map);
+  const outerWorld = [
+    [20, -105],
+    [20, -70],
+    [45, -70],
+    [45, -105]
+  ];
+  const tnHoles = exteriorRingsFromGeometry(tnFeature.geometry)
+    .map(lonLatRingToLeaflet);
 
-    const tnFeature = geojson.features[0];
-    tnBoundaryLayer = L.geoJSON(tnFeature, {
-      pane: 'tnBoundaryPane',
+  tnOutsideMaskLayer = L.polygon(
+    [outerWorld, ...tnHoles],
+    {
+      pane: 'tnOutsideMaskPane',
       interactive: false,
-      style: {
-        color: '#111827',
-        weight: 3.2,
-        opacity: 0.96,
-        fillOpacity: 0
-      }
-    }).addTo(map);
-    const outerWorld = [
-      [20, -105],
-      [20, -70],
-      [45, -70],
-      [45, -105]
-    ];
-    const tnHoles = exteriorRingsFromGeometry(tnFeature.geometry)
-      .map(lonLatRingToLeaflet);
-
-    tnOutsideMaskLayer = L.polygon(
-      [outerWorld, ...tnHoles],
-      {
-        pane: 'tnOutsideMaskPane',
-        interactive: false,
-        stroke: false,
-        fillColor: '#FFFFFF',
-        fillOpacity: 0.60,
-        fillRule: 'evenodd'
-      }
-    ).addTo(map);
-  } catch (err) {
-    console.error(err);
-  }
+      stroke: false,
+      fillColor: '#d6dde5',
+      fillOpacity: 0.72,
+      fillRule: 'evenodd'
+    }
+  ).addTo(map);
 }
 
-loadOfficialTennesseeBoundary();
+loadTennesseeBoundary();
 const controlPanel = document.getElementById('controlPanel');
 const panelToggle = document.getElementById('panelToggle');
 

@@ -1,4 +1,0 @@
-metric_id,geography,year,value,lower,upper,unit,observation_period,series_type
-lbnl_us_2014,United States,2014,58,,,TWh,2014,observed
-lbnl_us_2023,United States,2023,176,,,TWh,2023,observed
-lbnl_us_2030_reference,United States,2030,649,521,843,TWh,2030,forecast_reference

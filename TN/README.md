@@ -57,7 +57,7 @@ The release includes statewide scores, a score dictionary, model card, batch-inp
 
 ## Interactive map
 
-[Open the Tennessee data-center map](https://htmlpreview.github.io/?https://github.com/Chris-Jin02/DataCenter/blob/main/TN/Map/tennessee_dcmap.html).
+[Open the Tennessee data-center map](https://chris-jin02.github.io/DataCenter/Config/).
 
 ![Tennessee data-center map](Map/tennessee_dcmap_preview.png)
 

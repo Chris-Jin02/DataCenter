@@ -243,7 +243,7 @@ const positron = L.maplibreGL({
   attributionControl: false,
   fadeDuration: 0,
   renderWorldCopies: false
-});
+}).addTo(map);
 
 const liberty = L.maplibreGL({
   style: "https://tiles.openfreemap.org/styles/liberty",
@@ -259,13 +259,13 @@ const osm = L.tileLayer(
     updateWhenZooming:false,
     keepBuffer:4
   }
-).addTo(map);
+);
 
 L.control.layers(
   {
-    "OpenFreeMap · Positron": positron,
+    "OpenFreeMap · Positron (default for local files)": positron,
     "OpenFreeMap · Liberty": liberty,
-    "OpenStreetMap · Standard (smooth default)": osm
+    "OpenStreetMap · Standard": osm
   },
   {},
   {position:"topright", collapsed:true}

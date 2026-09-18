@@ -7,3 +7,9 @@ __pycache__/
 venv/
 .firecrawl/
 tmp/
+
+# Local workspace mirror and generated presentation deliverables.
+/outputs/
+presentation/
+*.inspect.ndjson
+*_release_lock.json

@@ -1,723 +1,435 @@
-# Tennessee data center siting patterns and decision support
+# Tennessee data-center siting ranking and scoring workflow
 
-## Research position
+**Status date:** 2026-09-14  
+**Current execution point:** Phase 3G complete; Phase 3H is next  
+**Frozen Phase 2 source:** `phase2_model_dataset.xlsx`  
+**Frozen source SHA-256:** `112d6db67d7f4f9e74fa8edde3406937e1f8eb7145e9bc04a64e7030cf1d3e03`
 
-> - Study area: Tennessee
-> - Data foundation: the frozen Tennessee multisource public facility inventory
-> - Current objective: identify reproducible spatial siting patterns and determine which features remain informative outside the markets used for model fitting
-> - Next-stage objective: rank feasible Tennessee locations by relative empirical siting affinity and relevant site conditions
-> - Later extension: apply the Tennessee workflow to other states after it passes the data, model, and decision quality gates
+## 1. Project objective and final decision product
 
-The project has two related purposes:
+The objective is to train and validate a model that helps rank and score potential Tennessee data-center locations. The model uses the features selected and frozen through Phase 2. Supervised learning provides the primary statewide ranking. Unsupervised learning describes recurring infrastructure and market environments and tests whether the supervised high-ranking cells occur in stable, interpretable regimes that are enriched for observed sites.
 
-1. describe the geographic pattern of the 61 documented Tennessee Master locations; and
-2. build a transparent method for comparing potential locations.
+The final product is a decision-support package for screening locations inside the Tennessee D1 candidate domain. It will contain:
 
-The central research question is:
+1. a reproducible 0–100 relative empirical affinity score for every eligible D1 cell;
+2. a rank and review-priority band for every eligible cell and mapped candidate site;
+3. an unsupervised regime assignment and regime-enrichment result;
+4. agreement, uncertainty, scenario-stability, and out-of-distribution flags;
+5. the hard-constraint status and unresolved engineering or commercial checks; and
+6. a model card explaining the data, model version, validation results, limits, and update rules.
 
-\[
-\boxed{
-\text{Which measurable infrastructure, land, market, and risk conditions consistently distinguish the 72 spatially eligible Tennessee presences from feasible Tennessee locations?}
-}
-\]
+The score is a relative ranking within the versioned Tennessee D1 domain. It is not a construction probability and does not establish available electric capacity, interconnection approval, fiber quality, water allocation, land control, permitting success, community acceptance, or commercial feasibility.
 
-The available data identify 61 Master records and 16 Candidate_Sites records, but they do not provide a representative sample of locations that developers considered and rejected. The spatial model uses 60 confirmed, mappable Master records and 12 unlinked, mappable Candidate records. One Master record is retained for source traceability as an `unconfirmed_candidate` and excluded from spatial training; four Candidate records lack coordinates and one is linked to an existing Master. The models therefore estimate relative spatial association, ranking, and similarity within a defined availability domain. They do not estimate the unconditional probability that a data center will be built or operate successfully.
-
-The research sequence is:
-
-\[
-\text{Canonical Sites}
-\rightarrow
-\text{Availability Domain}
-\rightarrow
-\text{Observed Siting Patterns}
-\rightarrow
-\text{Presence-Background and PU Models}
-\rightarrow
-\text{Spatial Validation and Interpretation}
-\rightarrow
-\text{Relative Site Score}
-\]
-
-Unsupervised learning will identify infrastructure environments and measure similarity to the weighted presence sample. It cannot establish site suitability on its own. Conclusions remain observational unless they are supported by independent temporal, policy, utility, or project-level evidence.
-
-## Current Tennessee data foundation
-
-The Phase 1 workbook contains 61 Master records: 50 core data-center or interconnection records and 11 crypto-mining records. The audit cohort retains all 61 records, but the spatial model excludes the one record with `analysis_scope=unconfirmed_candidate`. The remaining 60 confirmed, mappable Master records each contribute one presence point with weight 1; status and facility type remain pooled rather than split into separate models.
-
-All 61 Master records retain coordinate pairs in the audit inventory. Forty-two have exact or address/site-level precision, and 41 have high location confidence. One low-confidence, area-level Master coordinate is deliberately excluded because project confirmation remains unresolved. The workbook also tracks 16 candidate sites: 12 have usable, unlinked coordinates and enter spatial modeling after duplicate checks; four lack coordinates, and one is linked to an existing Master. The current spatial-training sample therefore contains 72 locations with a baseline weight sum of 68.0. Review Queue items are closed with evidence rather than treated as unresolved training points.
-
-Published capacity is available for 15 of the 61 Master records and is concentrated in a small number of large projects. Capacity-weighted inference is inactive until coverage and influence requirements are met. Opening-year coverage is also insufficient for historical siting inference.
-
-The frozen workbook remains unchanged. Analytical tables, derived features, sampling records, and model outputs will be stored as versioned downstream products with a separate processing log.
-
----
-
-# 1. Decision context and research boundaries
-
-## 1.1 Intended decision
-
-The final system will help analysts, planners, and project teams decide which candidate locations warrant closer investigation. It will answer:
-
-> Given the Tennessee candidate domain and the available evidence, which locations exhibit the conditions associated with the weighted Master and Candidate sample, and which constraints or uncertainties could change that ranking?
-
-The system is a screening tool. A high score means that a location ranks favorably under the selected data, model, domain, and decision criteria. It does not certify utility capacity, permitting, land acquisition, community acceptance, environmental compliance, commercial feasibility, or future construction.
-
-## 1.2 Primary analytical population
-
-The weighted presence sample is:
-
-\[
-S_{train}=S_{Master,confirmed\_mappable}\cup S_{Candidate,unlinked\_mappable}
-\]
-
-Confirmed, mappable Master records remain in the main sample after identity and coordinate checks. A Master row explicitly labeled `analysis_scope=unconfirmed_candidate` is retained in the audit inventory but excluded from spatial fitting. Records are otherwise not split by `status_normalized` or `facility_type`; these fields remain available for describing the sample and interpreting possible source-composition effects.
-
-Candidate_Sites records with coordinates enter the same model as partial presences. Their initial weights are fixed before feature inspection:
-
-\[
-w_i=
-\begin{cases}
-1.00, & i\in Master \\
-0.75, & i\in CandidateHigh \\
-0.50, & i\in CandidateMedium \\
-0.25, & i\in CandidateLow
-\end{cases}
-\]
-
-These values represent confidence in using a record as presence evidence. They are not estimates of site suitability or construction probability. The weights will be tested against two bounding cases: Candidate weight 0, which excludes them, and Candidate weight 1, which treats them like Master records. Candidate records without coordinates cannot enter a spatial model. A candidate linked to an existing Master record cannot create a second point unless evidence establishes a distinct location.
-
-This pooled and weighted definition changes the interpretation of the outcome. The model learns the environments associated with publicly documented data-center-related facilities, projects, and credible candidates. Because the sample includes operational, proposed, under-construction, expanding, cancelled, interconnection, crypto-mining, and candidate records, the output is not a model of operational success alone.
-
-## 1.3 Claims outside the scope
-
-The current phase does not claim:
-
-- that unobserved locations are unsuitable;
-- that background samples are failed projects;
-- that model scores are calibrated construction probabilities;
-- that SHAP values or feature importance establish causal siting mechanisms;
-- that current infrastructure necessarily existed when older sites were selected;
-- that an unsupervised cluster is a suitability grade; or
-- that Tennessee results directly generalize to other states.
-
----
-
-# 2. Research questions and hypotheses
-
-Primary hypotheses and evaluation rules will be fixed before final model comparison and statewide scoring.
-
-## RQ1: Observed spatial pattern
-
-Where are the pooled and weighted Tennessee facility, project, and candidate records concentrated, and how does that concentration compare with feasible Tennessee locations?
-
-## H1: Electric infrastructure association
-
-> After controlling for developable land, market conditions, and urbanization, pooled Master and weighted Candidate locations remain associated with shorter distance or stronger access to relevant electric infrastructure.
-
-Evidence that weakens H1 includes an effect that disappears under the urban and industrial matched background, reverses across spatial folds, or is driven by one metro or campus.
-
-## H2: Network infrastructure association
-
-> Pooled Master and weighted Candidate locations occur more frequently in feasible areas with stronger commercial network access after controlling for market and urbanization variables.
-
-Provider count, coverage, route proximity, and published record count will remain distinct measurements. H2 will be interpreted in light of the facility mix, source coverage, and Candidate weighting rule.
-
-## H3: Independent and stable feature contribution
-
-> At least one power or network feature contributes stable out-of-area ranking information beyond land and market controls.
-
-Support requires consistent effect direction or predictive contribution across spatial folds, alternative backgrounds, and leave-one-metro-out tests. In-sample fit is insufficient.
-
-## H4: Out-of-area ranking performance
-
-> A parsimonious presence-background model ranks spatially withheld weighted presence locations above comparable available locations in separated test areas.
-
-H4 concerns relative ranking within the availability domain. It is not a claim about the probability of future construction.
-
-## Exploratory questions
-
-- Which infrastructure regimes contain more or fewer observed data-center sites than expected?
-- Do nonlinear supervised models add stable out-of-area information beyond a transparent statistical baseline?
-- Which features have stable permutation importance and SHAP patterns across spatial folds?
-- Which feasible areas receive high model scores but also high uncertainty or out-of-distribution warnings?
-- How sensitive are model rankings and feature interpretations to the Candidate confidence weights?
-
-Capacity, facility-type subclasses, and historical development remain conditional modules rather than primary hypotheses.
-
----
-
-# 3. Phase one: canonical analytical data
-
-## 3.1 Units of analysis
-
-### Site or campus level
-
-The audit cohort preserves all 61 Master IDs. The primary spatial analysis uses 60 confirmed, mappable Master records at full weight and 12 eligible, unlinked Candidate records at lower confidence weights. Identity checks may correct documentation errors, but linked Candidate evidence does not create a second point.
-
-### Facility or building level
-
-Facility and building records are retained for source tracing, campus membership, capacity aggregation, development intensity, and later site-specific work. They do not create additional positive points when they belong to the same physical campus.
-
-## 3.2 Required analytical tables
-
-| Table | Purpose |
-|---|---|
-| `canonical_sites` | One row for each of the 61 Master records |
-| `site_facility_crosswalk` | Maps every source record to its Master record, with rationale and evidence role |
-| `analysis_cohort` | Records source class, confidence weight, inclusion status, and spatial usability |
-| `weighted_presence_cohort` | Combines all Master records and eligible Candidate records for model fitting |
-| `analysis_processing_log` | Records derived variables, corrections, software, parameters, and dates |
-| `data_quality_summary` | Reports missingness, coordinate precision, unresolved reviews, and sample counts |
-
-The crosswalk distinguishes records used for entity identity, coordinates, lifecycle status, measurements, or supporting evidence. A source record marked as included must have a documented analytical destination.
-
-## 3.3 Required site fields
-
-| Field | Purpose |
-|---|---|
-| `site_id` | Stable analytical key |
-| `facility_id` and `parent_site_id` | Facility-to-campus traceability |
-| `site_name`, `operator`, `owner`, `developer`, `anchor_tenant` | Entity review and role separation |
-| `latitude`, `longitude`, `coordinate_precision`, `location_confidence` | Spatial analysis and uncertainty |
-| `county`, `market`, `status`, `facility_type` | Stratification and spatial validation |
-| `capacity_mw`, `capacity_estimated`, `capacity_definition` | Conditional capacity analysis |
-| `opening_year`, `milestone_date` | Conditional temporal analysis |
-| `source_snapshot_date`, `evidence_urls` | Reproducibility and audit |
-| `review_flag`, `cohort_role` | Manual review and analytical inclusion |
-
-## 3.4 Gate A checks
-
-Before spatial modeling:
-
-1. resolve or explicitly flag campus and child-facility relationships without removing Master records from the pooled cohort;
-2. confirm that every one of the 61 Master IDs appears exactly once in `canonical_sites`;
-3. reconcile included raw records with the crosswalk;
-4. confirm that 60 confirmed, mappable Master IDs enter once with weight 1, that the `unconfirmed_candidate` Master record is excluded, and that each eligible unlinked Candidate enters once with its predeclared confidence weight;
-5. record the handling of ambiguous entity matches;
-6. report capacity, temporal, and feature missingness;
-7. identify sites requiring coordinate sensitivity analysis; and
-8. freeze the analytical cohort and processing rules.
-
-Spatial inference stops if the primary site definition cannot be reproduced.
-
----
-
-# 4. Phase two: candidate domain and background sampling
-
-The study uses available or background locations because verified rejected-project labels are not sufficiently numerous or representative. Background locations support estimation of relative spatial association. They are not treated as true negatives.
-
-## 4.1 Availability domains
-
-### D0: Tennessee land baseline
-
-All Tennessee land, used for broad description and sensitivity analysis.
-
-### D1: Feasible-land baseline
-
-Exclude locations that fail predeclared feasibility rules, such as major water bodies, protected or restricted land, unacceptable terrain, and incompatible land classes. D1 is the main statewide scoring domain.
-
-### D2: Urban and industrial matched baseline
-
-Sample background locations from market, development, and industrial contexts comparable to observed sites. D2 tests whether apparent infrastructure associations mainly reflect urbanization or commercial geography.
-
-## 4.2 Avoiding circular definitions
-
-The availability domain must not be defined by the feature being tested. For example, substation proximity cannot be both a prerequisite for entering D1 and the primary explanatory variable in H1.
-
-Hard constraints must be separated from preference variables:
-
-- a hard constraint determines whether a cell remains in the candidate domain;
-- a preference feature helps rank cells that remain feasible; and
-- an uncertain constraint produces a flag rather than an automatic favorable value.
-
-## 4.3 Background sampling protocol
-
-For each model version:
-
-1. preserve the full feasible grid for final scoring;
-2. draw repeated background samples for computational model fitting;
-3. stratify or weight sampling so large rural areas do not overwhelm comparable market environments;
-4. prevent Master cells, included Candidate cells, and duplicate locations from being sampled as background;
-5. retain sample seeds, inclusion probabilities, and weights;
-6. repeat fitting across multiple background draws; and
-7. report sensitivity to D0, D1, and D2.
-
-The ratio of background points to positive sites affects classification metrics and raw model outputs. It must be fixed or included in sensitivity analysis.
-
-## 4.4 Spatial scale
-
-Use one equal-area grid or H3 resolution as the primary scoring unit. Select it from feature resolution, coordinate uncertainty, computational feasibility, and the scale of the decision. Compare at least one finer and one coarser resolution.
-
----
-
-# 5. Phase three: feature system
-
-## 5.1 Feature families
-
-| Family | Candidate variables | Interpretation boundary |
-|---|---|---|
-| Electric power | Substation distance, transmission distance, voltage class, utility territory | Proximity does not establish spare capacity or interconnection approval |
-| Network | Fiber coverage, route distance, provider count, carrier diversity, exchange access | Current coverage may reflect urbanization or later investment |
-| Water and cooling context | Public-water service, water-source distance, reuse opportunity, watershed and drought indicators | Service-area presence does not establish project allocation |
-| Market and labor | Metro distance, population, employment density, relevant labor access | These variables may proxy for several unobserved market factors |
-| Land and parcel | Developable area, slope, land use, parcel scale, land-value proxy | Current values may not represent historical acquisition conditions |
-| Transportation | Highway, airport, and freight access | Accessibility is not automatically a requirement |
-| Hazard and environmental context | Flood, heat, drought, seismic, wildfire, and other relevant risks | Hazard layers require consistent years, units, and resolution |
-| Community and receptor context | Homes, schools, parks, churches, streams, and other locally relevant receptors | These variables support screening and tradeoff review, not automated approval |
-
-Training-presence density and distance to the nearest included presence are excluded from explanatory models that seek independent siting conditions. They may be displayed separately for market context.
-
-## 5.2 Feature documentation
-
-Every feature records:
-
-- source and access date;
-- measurement year or effective period;
-- original units and analytical units;
-- coordinate reference system and spatial resolution;
-- transformation and spatial-join method;
-- missing-data handling;
-- known coverage limitations; and
-- whether it is a hard constraint, model feature, reporting variable, or sensitivity variable.
-
-## 5.3 Feature screening before modeling
-
-Feature selection begins with data and domain quality rather than model importance:
-
-1. remove features with unacceptable coverage, inconsistent meaning, or temporal mismatch;
-2. avoid duplicate encodings of the same source signal;
-3. transform strongly skewed distances and costs where justified;
-4. identify highly correlated feature groups;
-5. preselect a small, interpretable baseline set; and
-6. perform data-driven selection only inside training folds.
-
-Statewide held-out outcomes are not used for feature selection before final evaluation.
-
----
-
-# 6. Phase four: descriptive siting patterns
-
-## 6.1 Maps and summaries
-
-Map separately:
-
-- 60 confirmed, mappable Master locations and 12 eligible, unlinked Candidate locations as the mapped training sample;
-- Candidate confidence weights through symbol size or another explicit visual channel;
-- status, facility type, and analysis scope as descriptive overlays;
-- coordinate precision and confidence;
-- D0, D1, and D2; and
-- coverage and missingness of major features.
-
-## 6.2 Density and distance analysis
-
-Use KDE and nearest-neighbor summaries to describe concentration. KDE bandwidths are selected before comparing results and evaluated across multiple scales. KDE does not show that a location is suitable or that clustering is statistically significant.
-
-Compare the feature distributions of observed sites with D1 and D2 background locations. Report standardized differences, overlap, uncertainty, and metro-specific patterns before fitting complex models.
-
----
-
-# 7. Phase five: presence-background and PU modeling
-
-## 7.1 Statistical baseline
-
-The primary inferential model is an inhomogeneous Poisson point process or an equivalent weighted presence-background model:
-
-\[
-\lambda(s)=\exp\left[\beta_0+f_{power}(s)+f_{network}(s)+f_{water}(s)+f_{market}(s)+f_{land}(s)+f_{risk}(s)\right]
-\]
-
-A regularized logistic regression or GAM fitted to observed sites and appropriately weighted background points may be used as a computational approximation. Its raw classification probability is not interpreted as the probability that a project will be built.
-
-The baseline model provides effect direction and uncertainty, transparent response functions, and a relative intensity surface. It also provides a reference for evaluating more complex models.
-
-## 7.2 Positive-unlabeled learning
-
-Positive-unlabeled learning is the main supervised extension when Master records are full presences, eligible Candidate records are weighted presences, and the status of remaining feasible cells is unknown.
-
-Candidate approaches include:
-
-- bagging PU models that repeatedly treat subsets of unlabeled cells as temporary background;
-- weighted logistic or tree-based models tested across assumed positive prevalence; and
-- non-negative PU risk estimation if sample size and implementation checks support it.
-
-PU outputs depend on coverage of the presence sample, Candidate weights, and assumptions about class prevalence. The analysis will report several Candidate-weight and class-prior scenarios when these values cannot be estimated credibly.
-
-## 7.3 Supervised machine-learning benchmarks
-
-Random Forest, gradient-boosted trees, or another nonlinear model may be compared with the statistical baseline after Gate C is satisfied. Model complexity must reflect the number of independent positive sites and spatial folds.
-
-A complex model advances only if it improves spatially held-out ranking and remains stable across background draws. In-sample fit does not satisfy this requirement.
-
-## 7.4 Model interpretation and feature importance
-
-Model interpretation uses:
-
-- standardized coefficients or smooth functions for the statistical baseline;
-- held-out permutation importance within spatial folds;
-- SHAP values for fitted machine-learning models;
-- accumulated local effects or partial-dependence diagnostics when appropriate; and
-- stability of feature rank, sign, and response shape across folds and background samples.
-
-SHAP values describe how a fitted model distributes prediction contributions among its features. They do not show that a feature caused a site choice. Correlated variables can split or exchange importance, so SHAP and permutation results will be reported for individual features and predefined feature families.
-
-Feature importance is not used as a one-pass filter on the full dataset. If importance guides feature reduction, that reduction occurs inside nested training folds and is compared with the predeclared baseline feature set.
-
----
-
-# 8. Phase six: unsupervised learning and infrastructure regimes
-
-## 8.1 Purpose
-
-Unsupervised learning addresses this question:
-
-> What recurring infrastructure, land, market, and risk environments exist across feasible Tennessee locations, and which environments contain more observed data centers than expected under the availability domain?
-
-It supports structure discovery, regime mapping, feature diagnostics, and comparison with supervised results.
-
-## 8.2 Regime workflow
-
-Construct a feature vector for each D1 or D2 grid cell:
-
-\[
-X_i=[Power_i,Network_i,Water_i,Land_i,Market_i,Risk_i,Community_i]
-\]
-
-The primary workflow is:
-
-\[
-X\rightarrow PCA\rightarrow HDBSCAN\rightarrow Infrastructure\ Regimes\rightarrow Site\ Enrichment
-\]
-
-- PCA summarizes the main feature combinations and multicollinearity.
-- HDBSCAN identifies stable environmental regimes without forcing every cell into a cluster.
-- UMAP may support visualization, but its axes are not interpreted as physical factors.
-- Regimes receive descriptive names based on their measured profiles.
-
-For regime \(k\):
-
-\[
-ER_k=\frac{P(Regime=k\mid WeightedPresence)}{P(Regime=k\mid Availability)}
-\]
-
-Report enrichment, uncertainty, spatial scale sensitivity, parameter sensitivity, and the HDBSCAN noise share.
-
-## 8.3 One-class similarity models
-
-One-Class SVM, Isolation Forest, or related methods may identify areas whose feature profiles resemble or differ from the weighted presence sample. These are secondary similarity diagnostics. A different profile could indicate an unsuitable location or a new configuration that is absent from the training data.
-
-One-class scores are not converted directly into final suitability grades.
-
----
-
-# 9. Phase seven: spatial validation
-
-## 9.1 Validation design
-
-Primary evaluation uses:
-
-- spatial block cross-validation;
-- leave-one-metro-out validation;
-- repeated background sampling;
-- influence diagnostics for Nashville, Memphis, Knoxville, Chattanooga, and large individual campuses;
-- sensitivity to D0, D1, and D2;
-- sensitivity to grid scale and coordinate precision; and
-- spatial block bootstrap or another spatially appropriate uncertainty method.
-
-Hyperparameter tuning, feature selection, and preprocessing are performed inside the training portion of each spatial fold. Ordinary random train/test splitting is not used for primary evaluation.
-
-## 9.2 Evaluation measures
-
-Because background cells are unlabeled, evaluation emphasizes ranking and stability rather than ordinary classification accuracy. Report:
-
-- weighted held-out presence rank and percentile;
-- weighted top-decile and top-quintile capture of held-out locations;
-- spatial lift over the relevant availability baseline;
-- rank correlation across background samples and model versions;
-- performance by withheld metro area;
-- uncertainty intervals; and
-- the share of high-scoring cells flagged as out of distribution.
-
-ROC-AUC, precision-recall metrics, or Brier scores may be reported only with an explanation of how background sampling and assumed prevalence affect them.
-
-## 9.3 External and prospective checks
-
-The 60 confirmed, mappable Master records and 12 eligible, unlinked Candidate records enter primary training under the stated weights. Candidate records without coordinates, linked duplicates, and the Master record labeled `unconfirmed_candidate` remain outside spatial fitting. Future records added after the freeze are not used to revise an already registered evaluation model.
-
-Facilities added after the freeze date provide the strongest prospective ranking test. Their evaluation must preserve the earlier model, candidate domain, features, and score version.
-
-## 9.4 Residual spatial structure
-
-After fitting the primary covariate model, use inhomogeneous Ripley's K or L with edge correction and Monte Carlo envelopes to test whether unexplained clustering remains. Distance ranges and global-envelope procedures are fixed before final inspection.
-
----
-
-# 10. Phase eight: relative site scoring
-
-## 10.1 Score structure
-
-The scoring product reports four components:
-
-1. feasibility status, based on documented hard constraints;
-2. empirical siting affinity, based on the spatially validated model ranking;
-3. decision context, including infrastructure, land, market, risk, and community measures; and
-4. reliability, including predictive uncertainty, data coverage, coordinate sensitivity, and out-of-distribution status.
-
-For feasible cell \(s\), the primary empirical score is a percentile transformation of ensemble predictions from models that have passed spatial out-of-fold evaluation:
-
-\[
-Score_{empirical}(s)=100\times PercentileRank\left(\hat{r}(s)\mid s\in D1\right)
-\]
-
-The score is relative to the versioned Tennessee D1 domain. It is recalculated when the domain, features, weights, or model version changes.
-
-## 10.2 Decision score
-
-A composite decision score may be produced after decision owners specify their priorities and noncompensable constraints. These weights are recorded separately from the learned model.
-
-\[
-Score_{decision}(s)=g\left(Score_{empirical},Infrastructure,Land,Market,Risk,Community\right)
-\]
-
-The function \(g\), component directions, normalization, and weights must be published with the score. A favorable result in one component cannot override a legal, physical, environmental, or utility constraint.
-
-## 10.3 Score output
-
-Each scored cell or candidate site reports:
-
-- score version and candidate domain;
-- empirical percentile score;
-- component scores and raw feature values;
-- spatial fold or ensemble uncertainty;
-- data quality and missingness flags;
-- out-of-distribution flag;
-- strongest model contributions with their interpretation limits; and
-- project-level checks that remain unresolved.
-
-Score categories such as `higher priority for review`, `middle priority for review`, and `lower priority for review` may be defined from preregistered percentile ranges. These are screening categories, not permitting or investment recommendations.
-
----
-
-# 11. Activation conditions for capacity and time
-
-## 11.1 Capacity
-
-Capacity-weighted analysis activates only when:
-
-- capacity definition and units are consistent;
-- reported and estimated values are distinguished;
-- missingness and spatial coverage are acceptable;
-- no single campus determines the statewide result; and
-- leave-one-site-out conclusions remain stable.
-
-Until then, capacity is descriptive and is excluded from the primary suitability model.
-
-## 11.2 Time
-
-Historical siting analysis activates only when opening-year coverage is adequate and feature layers can be aligned with plausible decision periods. Current infrastructure supports present-day spatial correspondence, not historical causal interpretation.
-
-## 11.3 Facility composition
-
-Facility type, analysis scope, and lifecycle status do not split the primary model. They remain descriptive metadata and are used to assess whether the pooled result mainly reflects one part of the 61-record Master and weighted Candidate sample.
-
----
-
-# 12. Model and decision quality gates
-
-## Gate A: Usable site objects
-
-Required:
-
-- reproducible campus-level canonicalization;
-- complete crosswalk and cohort roles;
-- explicit lifecycle and facility-type definitions;
-- reviewed duplicate and coordinate issues; and
-- a frozen audit cohort containing all 61 Master records and 16 Candidate records, plus a 72-location spatial subset containing 60 confirmed Master and 12 eligible, unlinked Candidate records.
-
-## Gate B: Usable feature system
-
-Required:
-
-- statewide or documented partial coverage;
-- consistent units, projections, years, and spatial resolution;
-- reproducible feature construction;
-- sampled validation of distances and overlays; and
-- separation of hard constraints from ranking features.
-
-## Gate C: Usable model
-
-Required:
-
-- enough effective weighted presences for the proposed model complexity;
-- spatial folds with usable training and test positives;
-- preprocessing and selection contained within folds;
-- performance above the relevant background baseline; and
-- conclusions that are not determined by one metro, campus, Candidate-weight choice, background draw, or feature definition.
-
-If Gate C fails, the project reports descriptive associations and regime enrichment instead of a statewide predictive score.
-
-## Gate D: Interpretable and stable features
-
-Required:
-
-- feature direction or importance is reasonably stable across folds;
-- correlated-feature effects are disclosed;
-- SHAP and permutation results are evaluated on held-out spatial data; and
-- interpretation distinguishes prediction contribution from causal mechanism.
-
-## Gate E: Decision-ready score
-
-Required:
-
-- the score has a defined decision owner and use case;
-- domain, model, components, weights, and version are visible;
-- uncertainty and out-of-distribution warnings accompany rankings;
-- hard constraints cannot be offset by favorable model scores; and
-- prospective monitoring and update rules are defined.
-
----
-
-# 13. Adversarial review
-
-The following findings would weaken the analysis or block release of the score:
-
-1. power or network effects disappear under D2;
-2. held-out metro performance is no better than the availability baseline;
-3. removing Nashville, Memphis, or one large campus reverses conclusions;
-4. changes to site canonicalization materially alter the result;
-5. the mix of facility types or source coverage accounts for most of the network association;
-6. high model performance results from spatial leakage or preprocessing outside folds;
-7. feature importance or SHAP rankings change sharply across folds;
-8. PU results depend strongly on an unsupported class-prior assumption;
-9. rankings or feature importance change sharply across reasonable Candidate weights;
-10. high-scoring regions are predominantly out of distribution;
-11. unsupervised regimes are unstable across scale or parameters;
-12. current features cannot represent the time at which older sites were selected; or
-13. future sites do not rank favorably under the frozen model.
-
-Negative and unstable results remain in the main report. Threshold, background, and feature choices will not be changed solely to remove them.
-
----
-
-# 14. Deliverables
-
-## 14.1 Data products
-
-- versioned frozen source inventory and source audit;
-- `canonical_sites` and `site_facility_crosswalk`;
-- analytical cohort and data-quality report;
-- `weighted_presence_cohort` with Master and Candidate weights;
-- Candidate confidence-weight register and sensitivity scenarios;
-- D0, D1, and D2 spatial domains;
-- grid-level and site-level feature tables;
-- repeated background-sample register;
-- model training and spatial-fold register;
-- statewide score table with uncertainty and flags; and
-- model card and score-version documentation.
-
-## 14.2 Figures
-
-1. lifecycle- and type-stratified site maps;
-2. coordinate uncertainty and missingness maps;
-3. D0, D1, and D2 maps;
-4. count KDE and feature-distribution comparisons;
-5. statistical baseline effect plots;
-6. spatially held-out performance by metro;
-7. permutation-importance and SHAP stability plots;
-8. PCA loadings and infrastructure-regime maps;
-9. regime enrichment with uncertainty;
-10. residual Ripley's L envelope; and
-11. empirical score, uncertainty, and out-of-distribution maps.
-
-## 14.3 Result tables
-
-- canonicalization and cohort summary;
-- feature definitions and quality status;
-- hypothesis results;
-- model comparison under spatial validation;
-- sensitivity across availability domains and grid scales;
-- leave-one-metro-out results;
-- feature-importance stability;
-- external and prospective ranking checks;
-- score components and release status; and
-- failed quality gates and unresolved limitations.
-
----
-
-# 15. Tennessee workflow
+The project logic is:
 
 ```text
-Frozen Multisource Tennessee Inventory
-                |
-                v
-Canonical Sites and Crosswalk
-                |
-                +-- 60 Confirmed, Mappable Master Records at Weight 1
-                +-- Mappable Candidates at Confidence Weights
-                +-- Duplicate and Coordinate Checks
-                |
-                v
-Candidate Domains
-                |
-                +-- D0 Tennessee Land
-                +-- D1 Feasible Land
-                +-- D2 Urban and Industrial Matched
-                |
-                v
-Feature System and Quality Audit
-                |
-                v
-Observed Siting Patterns
-                |
-                +-- Maps and KDE
-                +-- Feature Distributions
-                |
-                v
-Modeling
-                |
-                +-- Point Process or Presence-Background Baseline
-                +-- Positive-Unlabeled Learning
-                +-- Nonlinear Supervised Benchmarks
-                +-- Unsupervised Infrastructure Regimes
-                |
-                v
-Spatial Validation and Interpretation
-                |
-                +-- Leave-One-Metro-Out
-                +-- Repeated Background Samples
-                +-- Permutation Importance and SHAP Stability
-                +-- Residual K or L
-                |
-                v
-Relative Tennessee Site Score
-                |
-                +-- Empirical Affinity
-                +-- Decision Components
-                +-- Uncertainty and OOD Flags
-                |
-                v
-External and Prospective Validation
+Audited site evidence
+        -> frozen candidate domain and selected features
+        -> spatially validated supervised ranking
+        -> statewide unsupervised environment regimes
+        -> supervised/unsupervised evidence comparison
+        -> cell and candidate scoring with uncertainty flags
+        -> project-level engineering and commercial review
+        -> versioned release, monitoring, and closeout
 ```
 
----
+## 2. Frozen analytical foundation
 
-# 16. Immediate next step
+### 2.1 Presence scenarios
 
-The next task is to create an analysis-ready weighted presence sample and a versioned Tennessee candidate domain.
+The following definitions are the only approved Phase 3 scenario interfaces:
 
-Required sequence:
+| Scenario | Included sites | Presence-weight total | Occupied 5 km cells | Use |
+|---|---:|---:|---:|---|
+| `primary` | 60 | 60.0 | 48 | Confirmed, mappable Master records; anchor model and main interpretation |
+| `weighted` | 74 | 69.0 | 56 | Primary plus 14 distinct Candidate locations weighted by evidence confidence |
+| `strict` | 73 | 68.5 | 56 | Weighted excluding the area-or-city coordinate | Coordinate-quality sensitivity |
 
-1. produce `canonical_sites` and `site_facility_crosswalk` from the frozen workbook;
-2. confirm that 60 confirmed, mappable Master records enter once with weight 1 and the `unconfirmed_candidate` Master is excluded;
-3. add the 12 currently mappable, unlinked Candidate records using the predeclared confidence weights;
-4. resolve coordinates for the remaining three Candidate records and prevent Master-Candidate duplicate points;
-5. reconcile every included raw record with a site or supporting-evidence role;
-6. publish the Gate A missingness, weighting, and coordinate-uncertainty report;
-7. define D1 hard constraints without using the features being tested;
-8. define D2 matching or sampling strata;
-9. select the first-version feature set and document source, year, unit, and resolution;
-10. validate spatial joins on a small sample of presence and background cells;
-11. preregister H1 through H4, Candidate weights, spatial folds, background draws, and evaluation measures; and
-12. fit the transparent presence-background baseline before activating more complex models.
+`TNDC-006` is audit-only. `TNCAND-010` shares the physical ORNL location represented by `TNCAND-009`, and `TNCAND-012` is supporting evidence for `TNDC-038`; neither creates a duplicate presence point. Presence weights measure confidence that a record can be used as evidence. They are not suitability weights.
 
-Unsupervised learning, PU learning, Random Forest, gradient boosting, feature importance, and SHAP follow only after the weighted presence sample, candidate domain, features, and spatial validation design are reproducible.
+### 2.2 Candidate domain
+
+The primary scoring unit is a 5 km × 5 km equal-area cell clipped to Tennessee land.
+
+| Domain status | Cells | Meaning |
+|---|---:|---|
+| D0 | 4,502 | Tennessee land cells in the frozen grid |
+| D1 eligible | 4,391 | Cells that pass the D1 v2 analytical availability rule |
+| D1 excluded | 110 | Cells without the required available connected component after hard masking |
+| D1 unresolved | 1 | Boundary-mismatch cell; excluded from sampling and scoring |
+
+D1 v2 uses a 250 m hard-constraint mask for slope above 16 percent, selected perennial NHD waterbodies, PAD-US GAP 1 or 2 protected land, DFIRM polygons marked `FLOODWAY`, and mapped military installations, ranges, and training areas. An eligible cell must retain a largest rook-connected unmasked component of at least 0.10 km². This is an analytical screening rule rather than a parcel-level legal or engineering decision.
+
+### 2.3 Background design
+
+The current primary D2 design is 10 background cells per included presence within the frozen grand-region and metro-distance strata. It has 20 deterministic draws using seeds 4701–4720. Every scenario excludes all known occupied cells from background sampling. The frozen workbook contains 41,400 background rows across the three scenarios.
+
+The 5:1 design met all quotas but its row-level samples must be reconstructed as nested prefixes before sensitivity fitting. The 20:1 design has documented census shortfalls in two small strata and lacks a complete row-level cell-ID delivery. It cannot be treated as an executed sensitivity until those IDs are rebuilt and reconciled to the audit.
+
+### 2.4 Feature contract
+
+The current model may use only the 21 numeric Phase 2 proxy features. They represent:
+
+- transmission proximity, voltage context, and owner diversity;
+- major-road and Interstate proximity;
+- hydrographic proximity;
+- nearby institutions and CIP 11/14 completions within 50 and 100 km; and
+- county employment and establishment context.
+
+The three Phase 2D preliminary priorities are `dist_major_road_km`, `dist_transmission_any_km`, and `dist_surface_water_flowline_km`. Ten additional variables are secondary candidates. Eight variables require representative selection within their collinearity groups. This disposition is a starting contract and not a final importance result.
+
+Identifiers, raw coordinates, presence-cell markers, D1 eligibility fields, sampling strata, draw IDs, fold IDs, cluster labels, and other design variables cannot enter the predictor matrix. Hard-constraint fields determine eligibility and remain separate from ranking features.
+
+Fiber route quality, spare utility capacity, interconnection queue position, electric price, public-water capacity, water rights, parcel ownership, detailed land cost, permitting, community acceptance, and comparable site-level hazard data are not present as consistent statewide training features. They remain downstream diligence fields until a new frozen data release passes the same source and coverage audit.
+
+## 3. Audit of Phase 1–3 work completed to date
+
+### 3.1 Work retained in the final evidence chain
+
+| Completed work | Retained role |
+|---|---|
+| Phase 1 canonical cohort, exclusion audit, and presence-weight scenarios | Source lineage for the 60/74/73 scenario definitions |
+| Phase 1 feature dictionary, source catalog, completeness report, and coordinate review | Source, unit, coverage, and uncertainty evidence |
+| Phase 2 D0/D1 v2 domain and hard-mask audit | The only statewide eligibility and scoring domain |
+| Phase 2 10:1 repeated D2 samples | Primary model-fitting background design |
+| Phase 2 21-feature matrix and training contract | The only approved model input interface |
+| Phase 2D screening and collinearity groups | A preliminary baseline and training-fold selection specification |
+| Phase 3A input-contract audit and spatial-fold registry | Reproducible join rules, prohibited fields, region folds, and 200 km block folds |
+| Phase 3B transparent Primary logistic baseline | Interpretable benchmark and current supervised evidence |
+| Phase 3C three-scenario model comparison | Scenario stability and screened-versus-contract logistic comparison |
+
+Phase 2 is frozen and is the runtime source for all Phase 3 training and statewide scoring. Phase 1 tables remain provenance evidence and must not be mixed with the Phase 2 feature values.
+
+### 3.2 Work retained only as descriptive or diagnostic evidence
+
+The Phase 1 geographic DBSCAN results describe where documented sites concentrate. At `eps=20 km` and `min_samples=3`, 41 of 60 Primary sites formed four geographic groups; the expanded 75-location description placed 56 locations in five groups. The expanded grouping was stable relative to the baseline, with Adjusted Rand Index about 0.92 and clustered-pair Jaccard about 0.93. These results are useful for visual review, metro influence checks, and communicating sample concentration. Geographic cluster labels do not enter the model.
+
+The Phase 1 site-only feature clustering used 21 numeric variables and selected K=2 with silhouette 0.388. It produced a 20-location and a 55-location environmental grouping. This is useful as an exploratory description of observed sites and as evidence that the feature space contains broad regimes. It is not the final statewide unsupervised analysis because it excludes the 4,391 eligible D1 cells.
+
+Phase 1 PCA, parameter sweeps, coordinate-jitter simulations, manual feature-importance rankings, figures, and the interactive cluster map remain quality-control and communication artifacts. They do not supply learned weights, labels, or suitability grades.
+
+Phase 3B and 3C are model-development evidence rather than the final score. Phase 3B completed 120 spatially held-out L2-logistic fits. Phase 3C completed 720 fits across three scenarios, two logistic specifications, two validation schemes, three folds, and 20 draws. All recorded runs had zero train/test spatial-group overlap; the Primary screened baseline achieved median held-out ranking percentiles near 0.89 in the summarized region and block results. Because the three screened features were selected in Phase 2D using the same overall presence inventory, these figures remain exploratory evidence and are not an independent prospective confirmation.
+
+### 3.3 Work that will not be extended in the current release
+
+The following activities do not improve the current final scoring chain and will stop unless a later data release creates a specific need:
+
+- further tuning of the Phase 1 site-only DBSCAN, KMeans, or PCA outputs;
+- using Phase 1 cluster IDs, manual feature rankings, or cluster-separation importance as model inputs or score weights;
+- reading Phase 1 `site_feature_matrix.csv` during Phase 3 training, because its point-derived values differ from the frozen Phase 2 interface and include a different analytical population;
+- treating background cells as failed projects or raw logistic probabilities as construction probabilities;
+- expanding the model catalogue merely to compare more algorithms;
+- activating PU learning without a registered class-prior assumption and reproducible spatial-validation design;
+- activating capacity-weighted or historical models before comparable capacity, date, and historical-feature coverage exists; and
+- inserting unavailable engineering variables through subjective imputation.
+
+A nonlinear challenger is optional. It will be activated only if a reproducible implementation exists in the approved runtime and the effective sample size supports its complexity. Failure to activate it does not block the transparent supervised ranking workflow.
+
+## 4. Phase status and remaining roadmap
+
+| Phase | Scope | Status |
+|---|---|---|
+| Phase 1 | Site evidence, descriptive geography, site-only environment exploration | Complete |
+| Phase 2 | Candidate domain, background design, feature matrix, screening, training contract | Complete and frozen |
+| Phase 3A | Input and spatial-fold registration | Complete |
+| Phase 3B | Primary transparent supervised baseline | Complete |
+| Phase 3C | Scenario and logistic-specification comparison | Complete |
+| Phase 3D | Sensitivity, influence, and release-rule registration | Complete — conditional Gate D pass |
+| Phase 3E | Statewide unsupervised environmental regimes | Complete |
+| Phase 3F | Final supervised model selection, fitting, and statewide prediction | Complete |
+| Phase 3G | Supervised–unsupervised evidence reconciliation | Complete |
+| Phase 3H | Phase 3 freeze and release decision | Next |
+| Phase 4 | Final cell and candidate scoring product | Planned |
+| Phase 5 | Shortlist diligence bridge and decision workflow | Planned |
+| Phase 6 | Release, prospective monitoring, updates, and project closeout | Planned |
+
+## 5. Phase 3D — sensitivity, influence, and rule registration
+
+### Purpose
+
+Determine whether the current supervised signal is stable enough to support statewide scoring and freeze all remaining decision rules before the final surface is inspected.
+
+### Implementation
+
+1. Reconfirm the Phase 2 hash, 60/74/73 scenario counts, 4,391 eligible cells, 21 predictors, fold assignments, and prohibited-field list.
+2. Aggregate the completed Phase 3C results by scenario, validation scheme, fold, model, and draw.
+3. Compare Primary, Weighted, and Strict results using held-out mean percentile, top-decile capture, top-quintile capture, and background AUC as a secondary diagnostic.
+4. Measure rank and coefficient stability across draws and identify any fold, scenario, or feature whose conclusion reverses.
+5. Reconstruct the 5:1 samples from the registered random order and verify that each sample is a prefix of its 10:1 counterpart; rerun the two approved logistic specifications under the existing folds.
+6. Attempt the 20:1 reconstruction only from the frozen sampling rules, seeds, audit quotas, and cell IDs. If exact reconstruction fails, record it as unavailable rather than generating a different design.
+7. Run occupied-cell and large-campus influence checks so that repeated records in one market or campus cannot dominate the conclusion.
+8. Register a metropolitan boundary definition before any leave-one-metro-out analysis. If no defensible frozen boundary is available, retain the completed grand-region and 200 km block results as the formal validation and document metro validation as unavailable.
+9. Treat 3, 7, and 10 km grid comparisons as conditional extensions because their complete predictor matrices do not yet exist. They do not enter the current model by partial feature substitution.
+10. Freeze the model-selection rule, score transformation, review bands, uncertainty fields, and unsupervised comparison rule before producing statewide predictions.
+
+### Required release rule
+
+Each required Primary fold in both registered validation systems must have a median held-out presence percentile above 0.50, and its fifth percentile across draws must also remain above 0.50. Any failure must be shown separately. Among passing supervised specifications, selection maximizes the worst-fold median percentile across the two validation systems. If the difference is at most 0.02, the simpler screened logistic is selected. Scenario and influence results may block release when they show a material rank reversal, even if mean performance is high.
+
+### Output
+
+One result workbook containing the frozen rules, sensitivity metrics, influence results, unmet dependencies, and a Gate D decision. No row-level process files are retained.
+
+## 6. Phase 3E — statewide unsupervised environmental regimes
+
+### Purpose
+
+Identify recurring environments across all eligible D1 cells without using the presence label. This tests structural consistency and detects high supervised scores in rare or unsupported parts of the feature space.
+
+### Implementation
+
+1. Read the 4,391 eligible D1 rows and the same 21 allowed numeric features from the frozen Phase 2 workbook.
+2. Fit all preprocessing on D1 cells only: apply the documented skew transformation, robust scaling, and PCA. Retain enough components to explain at least 80 percent of D1 feature variance, subject to a minimum interpretability review of loadings.
+3. Fit KMeans for K=2 through K=8 as the reproducible primary regime method. Select K using silhouette, resampling stability, minimum regime size, and geographic coherence. Presence enrichment is not used to select K.
+4. If a reproducible HDBSCAN implementation becomes available, run it as a challenger and report its stability and noise share. It does not replace the primary result unless it passes the same stability and interpretability checks.
+5. Freeze the regime model, assign every eligible D1 cell, and then join the presence sites for post-fit evaluation.
+6. For every regime, report D1 cell share, feature profile, PCA profile, mapped geography, Primary/Weighted/Strict presence share, weighted enrichment ratio, and uncertainty.
+7. Perturb K, initialization, D1 resamples, and reasonable preprocessing choices to compute assignment stability. Small or unstable regimes receive a reliability warning.
+8. Compute an out-of-distribution or novelty measure from distance to the assigned regime centroid and D1 feature-range checks. Thresholds are set from the D1 distribution before supervised scores are compared.
+
+For regime `k`, the principal post-fit statistic is:
+
+\[
+ER_k = \frac{P(\text{Regime}=k\mid\text{Weighted Presence})}
+{P(\text{Regime}=k\mid\text{D1 availability})}.
+\]
+
+An enriched regime is an environment associated with the observed sample. It is not automatically suitable, and a non-enriched regime is not automatically unsuitable.
+
+### Output
+
+One result workbook with the regime model specification, D1 assignments, profiles, stability, enrichment, and novelty results, plus final maps needed for interpretation.
+
+## 7. Phase 3F — final supervised model and statewide prediction
+
+### Purpose
+
+Select one transparent ranking specification under the Phase 3D rule, fit it reproducibly, and produce an ensemble prediction for the full D1 domain.
+
+### Implementation
+
+1. Select between the screened logistic and the training-fold contract logistic using the frozen worst-fold rule and the Phase 3D stability decision.
+2. Use Primary as the anchor learning population. Use Weighted and Strict to measure how Candidate evidence and coordinate quality change statewide ranks.
+3. Repeat preprocessing and any representative feature selection within training folds for validation. Fit final full-domain versions separately for each background draw after the specification is selected.
+4. Preserve 20 draw-specific predictions rather than averaging predictor rows or background samples before fitting.
+5. Predict the relative linear score for all 4,391 eligible D1 cells from each draw-specific model. Do not publish sampled-class probabilities.
+6. Convert the median ensemble prediction to a statewide percentile:
+
+\[
+Score_{empirical}(s)=100\times PercentileRank\left(\operatorname{median}_d\hat r_d(s)\mid s\in D1\right).
+\]
+
+7. Retain the fifth, twenty-fifth, seventy-fifth, and ninety-fifth prediction or rank percentiles across draws; compute rank interquartile range and scenario rank range.
+8. Map all 74 weighted-scenario sites and any separate candidate list to D1 cells without changing the cell score. Multiple records in one cell share the cell score and retain distinct source identities.
+9. Report standardized coefficients, direction, and draw/fold stability for the selected model. These explain the fitted ranking association rather than a causal site-selection mechanism.
+
+### Output
+
+One result workbook containing the selected specification, validation decision, draw-level model summaries, complete D1 prediction table, candidate-site mapping, coefficients, and uncertainty summaries.
+
+## 8. Phase 3G — supervised and unsupervised evidence comparison
+
+### Purpose
+
+Compare the primary supervised ranking with the independent label-free structure of the D1 feature space. The comparison informs confidence and review priority; it does not average two incomparable outputs into an arbitrary model score.
+
+### Implementation
+
+1. Join each D1 cell's empirical percentile, prediction uncertainty, regime ID, regime stability, enrichment interval, and novelty measure.
+2. Report the empirical-score distribution within every regime and the regime distribution within the top 10, 25, and 50 percent of supervised cells.
+3. Measure whether high-scoring cells concentrate in stable regimes with positive Presence enrichment.
+4. Identify five mutually exclusive evidence states:
+
+| State | Supervised evidence | Unsupervised evidence | Interpretation |
+|---|---|---|---|
+| `corroborated` | High and stable rank | Stable, enriched regime; not novel | Strongest empirical screening support |
+| `model_only` | High rank | Neutral or weak enrichment | Retain score; require closer feature and diligence review |
+| `regime_only` | Moderate or low rank | Stable, enriched regime | Potential omitted interaction or local opportunity; manual review |
+| `novel_or_unstable` | Any rank | Novel, small, or unstable regime | Low confidence; do not promote solely on the model score |
+| `limited_support` | Below high-rank threshold | Stable, non-enriched regime | No positive convergent support; this is not an unsuitability label or exclusion |
+
+5. Compare results across Primary, Weighted, and Strict. A cell whose priority changes materially across scenarios receives a scenario-sensitivity flag.
+6. Review apparent disagreements at feature level to determine whether they arise from nonlinear regime structure, a sparse environment, a Candidate-weight effect, or an unavailable engineering variable.
+
+The supervised percentile remains the only learned scalar score. The unsupervised result supplies regime context, corroboration, and caution flags.
+
+### Output
+
+One result workbook and map set with the joined evidence states, regime-by-score comparisons, scenario sensitivity, and exception review.
+
+## 9. Phase 3H — Phase 3 freeze and scoring-release decision
+
+### Implementation
+
+1. Verify that every Phase 3 result reads the frozen Phase 2 workbook and records its SHA-256 hash.
+2. Confirm no IDs, coordinates, domain flags, fold IDs, sampling strata, or cluster labels entered a supervised predictor matrix.
+3. Confirm no presence labels or supervised predictions were used to select the unsupervised regime count or preprocessing.
+4. Reconcile all model runs, draws, scenarios, folds, and D1 assignments to expected counts.
+5. Evaluate Gates A–E in Section 13 and record each as pass, conditional pass, or fail with evidence.
+6. Freeze the selected supervised specification, unsupervised regime specification, score transformation, review bands, and version identifier.
+7. If the supervised model fails the release gates, stop statewide score publication and deliver the descriptive regimes, held-out association results, and failure reasons. Do not relax a gate after seeing the map.
+
+### Output
+
+A Phase 3 closeout workbook and updated Phase 3 README. Phase 3 is complete only when the release decision and all unresolved dependencies are explicit.
+
+## 10. Phase 4 — final ranking and scoring product
+
+### Purpose and boundary
+
+Phase 4 operationalizes the frozen Phase 3 model. It does not select features, tune hyperparameters, retrain a model, or change a coefficient. The current release candidate is the 21-feature `pls_logistic` model selected from Elastic Net, PLS-logistic, spline-logistic, and constrained boosted-stump candidates by spatial three-fold performance. Its 20 Primary-draw models, all candidate-model weights, and D1-only PCA/KMeans model are retained in `phase3_final_model_weights.json`.
+
+### 4A — release lock and score contract
+
+1. Confirm the frozen Phase 2 SHA-256, 21-feature order, score-reference distribution, selected model name, and 20 Primary draw models against the weight package.
+2. Freeze a semantic version such as `TN-DC-1.0.0`, the score date, software runtime, and artifact hashes.
+3. Record the model-selection evidence: Primary spatial AUC by region, spatial log loss, selected specification, and all non-selected candidate weights.
+4. Publish only Primary-model scores in this release. Weighted and Strict final-model weights are not yet frozen; Phase 4 must not claim a final scenario-ranking range until they are trained, retained, and released under a new model version.
+
+### 4B — input and batch-scoring interface
+
+Every input row must contain a stable `location_id`, optional location name and coordinates, and all 21 frozen numeric features in the exact documented units. The scoring code must:
+
+1. reject missing, non-numeric, or out-of-contract values rather than silently imputing them;
+2. apply the stored `log1p`, mean, and scale parameters separately for every retained Primary draw;
+3. compute the median raw score across the 20 selected-model draws;
+4. convert it to the frozen D1-relative `final_score` from 0 to 100;
+5. compute rank within the submitted batch, draw P05/P95, and draw IQR; and
+6. apply the retained D1-only PCA/KMeans parameters to return `grid_regime`, centroid distance, and `novelty_flag`.
+
+Coordinates support mapping and domain checks; they never enter the supervised predictor matrix.
+
+### 4C — statewide and candidate products
+
+Every D0 cell receives its domain status. Every eligible D1 cell and every valid scored input row receives:
+
+- `final_score`, `final_raw_score`, D1-relative percentile, and rank;
+- `score_p05`, `score_p95`, and `score_iqr` across the 20 Primary draws;
+- model version, selected specification, frozen Phase 2 hash, and scoring timestamp;
+- `grid_regime`, regime distance, and novelty flag;
+- the 21 supplied feature values; and
+- D1 eligibility, exclusion context, data-quality fields, and unresolved engineering checks when applicable.
+
+The operational bands remain transparent review bands:
+
+| Final score | Band | Use |
+|---:|---|---|
+| 90–100 | Priority 1 | First set for project-level diligence |
+| 75–<90 | Priority 2 | Secondary diligence and alternative-market review |
+| 50–<75 | Watchlist | Retain for scenario, expansion, or data updates |
+| 0–<50 | Lower empirical affinity | Defer unless external project evidence justifies review |
+
+Novelty and high draw-IQR flags require review but do not secretly alter `final_score`.
+
+### 4D — candidate evaluation and user-facing outputs
+
+1. Score the 14 Phase 2 Candidate records without adding them to the Primary training cohort.
+2. Deliver a candidate ranking table showing location metadata, final score, uncertainty, D1-relative percentile, regime, novelty, and required diligence checks.
+3. Treat Candidate scores as an external score exercise, not as accuracy evidence: Candidate records are not confirmed positive or negative outcomes.
+4. Produce a statewide score map and an uncertainty / novelty map with clear legends and D1 exclusions.
+5. Provide the batch input template, score dictionary, model card, and concise decision-user guide.
+
+### 4E — verification and release gate
+
+Before release, verify:
+
+1. batch scoring and one-row scoring return the same score for the same feature vector;
+2. all scored D1 IDs are unique, all scores are in 0–100, and D0 excluded/unresolved rows have no score;
+3. the score package hash, feature order, 20 draw models, and model name match the frozen weight package;
+4. no input ID, coordinate, region, grid identifier, Candidate role, or cluster label enters the supervised scorer;
+5. the candidate table contains 14 rows and is separate from Primary training rows; and
+6. maps, workbook tables, and code output agree on counts and score ranges.
+
+### 4F — retained deliverables
+
+- one statewide D0/D1 scoring workbook or geospatial table;
+- one Candidate ranking workbook or table;
+- one final map package with score, draw uncertainty, regime, novelty, and exclusions;
+- one versioned model card, input dictionary, and decision-user guide;
+- the frozen JSON weight package; and
+- the reproducible Notebook and Python code required to train and score.
+
+Only these final result files and code are retained. Temporary exports, caches, scratch tables, intermediate plots, and build logs are removed after verification.
+
+## 11. Phase 5 — shortlist diligence and final location review
+
+The model narrows the search. It does not replace project-level diligence. For Priority 1 and selected Priority 2 cells:
+
+1. identify parcels or sites large enough for the intended facility program;
+2. obtain utility confirmation for available capacity, voltage, substation configuration, interconnection path, queue status, schedule, and cost;
+3. verify fiber routes, carrier diversity, latency, and service commitments;
+4. verify water source, allocation, treatment, discharge, drought exposure, and cooling design when relevant;
+5. perform parcel-level flood, wetland, protected-land, slope, geotechnical, and access review;
+6. review zoning, permitting, tax, community, noise, air, and environmental-justice considerations;
+7. estimate land, power, network, water, construction, tax, and schedule costs under one project specification;
+8. record each item as pass, fail, unresolved, or conditionally acceptable with evidence date and owner; and
+9. rank the surviving shortlist using a separately approved decision policy whose noncompensable constraints cannot be offset by a high empirical score.
+
+Project-level diligence data may be appended to the candidate report. They enter model retraining only through a new versioned statewide data and feature audit.
+
+## 12. Phase 6 — release, monitoring, updates, and closeout
+
+### 12.1 Release verification
+
+1. Recompute all final artifacts from frozen inputs in a clean runtime.
+2. Verify counts, hashes, joins, formulas, score ranges, rank uniqueness rules, missingness, and exclusion handling.
+3. Visually inspect statewide and regional maps for projection, clipping, legend, label, and outlier errors.
+4. Confirm that all claims match the model card and that engineering proxies are not presented as capacity or approval.
+5. Freeze the release version, date, input hashes, parameters, software versions, and owners.
+
+### 12.2 Prospective validation
+
+New qualifying Tennessee sites recorded after the freeze date form a prospective queue. They are scored with the unchanged released model and domain before any retraining. Report their percentile ranks, regimes, and uncertainty. This is the strongest available external check because Phase 3 used the current inventory for model development.
+
+### 12.3 Update triggers
+
+A new model version is required when any of the following occurs:
+
+- the presence inventory or Candidate evidence rules materially change;
+- the candidate domain or hard-constraint sources change;
+- one or more predictor sources are updated or corrected;
+- new statewide engineering features pass coverage and quality gates;
+- prospective performance weakens materially; or
+- the intended facility type or decision use changes.
+
+Every update repeats the Phase 2 interface audit, Phase 3 spatial validation, unsupervised regime analysis, evidence comparison, scoring, and release checks. Scores from different versions are not compared without a bridge analysis.
+
+### 12.4 Project completion definition
+
+The Tennessee workflow is complete when all of the following exist and pass verification:
+
+1. a frozen and reproducible Phase 2 analytical interface;
+2. a supervised model that passes the registered spatial and stability gates;
+3. a statewide D1 unsupervised regime model with stability, enrichment, and novelty results;
+4. a complete D0/D1 cell table with empirical score, rank, uncertainty, regime, evidence state, and exclusion status;
+5. a candidate-site ranking table and map package;
+6. a model card, score dictionary, user guide, and diligence checklist;
+7. a recorded release decision and unresolved limitation list;
+8. a prospective validation and version-update procedure; and
+9. removal of temporary process files after the final outputs are reproduced and checked.
+
+Running additional algorithms is not a completion criterion. If a required model gate fails, the completed deliverable is a documented descriptive and validation result explaining why a statewide score was not released.
+
+## 13. Quality gates
+
+| Gate | Pass condition | Status on 2026-09-14 |
+|---|---|---|
+| A — Frozen interface | Hash, 60/74/73 scenarios, D1 v2, 21 features, 10:1 draws, and prohibited fields reconcile | Passed |
+| B — Spatial separation | Three grand-region folds and three 200 km block folds contain usable support and have zero train/test spatial overlap | Passed |
+| C — Supervised ranking | Required Primary folds beat the registered random-ranking rule with convergence and no leakage | Provisionally supported; final rule applied in 3D |
+| D — Stability and influence | Scenario, background-ratio, draw, fold, and occupied-cell checks do not show an unexplained material reversal | Conditional pass — 5:1 and occupied-cell checks complete; 20:1, metro, and alternate-grid extensions unavailable |
+| E — Unsupervised structure | D1 regimes are stable and interpretable; enrichment, high-score distribution, and novelty are reported | Partially complete — D1 regimes, enrichment, and novelty complete; high-score distribution awaits Phase 3F–3G |
+| F — Score release | Complete D1 table, uncertainty, regime context, OOD flags, score version, model card, and user guide pass QA | Pending Phase 4 |
+| G — Prospective evidence | Post-freeze sites are evaluated without changing the released model | Begins after release |
+
+## 14. Source-of-truth and file policy
+
+The frozen Phase 2 workbook is the only training and statewide-scoring input. Phase 1 files establish provenance and provide diagnostics. Phase 3 workbooks record validation and model decisions. The Proposal records the end-to-end workflow and release criteria.
+
+Each phase directory retains only:
+
+- the final result workbook, table, map, or report needed by the next phase;
+- the notebook or code required to reproduce that result; and
+- a README that states the input hash, status, outputs, limits, and next handoff.
+
+Temporary data extracts, scripts used only to assemble a result, preview files, execution logs, and superseded duplicates are deleted after the final artifact passes content and visual verification.

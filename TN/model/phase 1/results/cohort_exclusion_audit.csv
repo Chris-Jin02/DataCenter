@@ -1,0 +1,18 @@
+record_id,record_role,representative_site_id,primary_status,candidate_augmented_status,strict_status,reason
+TNDC-006,unconfirmed_master,,excluded,excluded,excluded,project confirmation unresolved; area-or-city coordinate retained for audit only
+TNCAND-002,candidate,TNCAND-002,excluded,included,included,unique mapped Candidate location
+TNCAND-003,candidate,TNCAND-003,excluded,included,included,unique mapped Candidate location
+TNCAND-004,candidate,TNCAND-004,excluded,included,included,unique mapped Candidate location
+TNCAND-005,candidate,TNCAND-005,excluded,included,included,unique mapped Candidate location
+TNCAND-006,candidate,TNCAND-006,excluded,included,excluded,city representative coordinate; retained only in weighted sensitivity
+TNCAND-007,candidate,TNCAND-007,excluded,included,included,unique mapped Candidate location
+TNCAND-008,candidate,TNCAND-008,excluded,included,included,unique mapped Candidate location
+TNCAND-009,candidate,TNCAND-009,excluded,included,included,unique mapped Candidate location
+TNCAND-010,candidate,TNCAND-009,excluded,excluded,excluded,shared ORNL physical site; represented once by TNCAND-009
+TNCAND-011,candidate,TNCAND-011,excluded,included,included,unique mapped Candidate location
+TNCAND-012,candidate,TNDC-038,excluded,excluded,excluded,linked supporting evidence for an existing Master site
+TNCAND-013,candidate,TNCAND-013,excluded,included,included,unique mapped Candidate location
+TNCAND-014,candidate,TNCAND-014,excluded,included,included,unique mapped Candidate location
+TNCAND-015,candidate,TNCAND-015,excluded,included,included,unique mapped Candidate location
+TNCAND-016,candidate,TNCAND-016,excluded,included,included,unique mapped Candidate location
+TNCAND-017,candidate,TNCAND-017,excluded,included,included,unique mapped Candidate location

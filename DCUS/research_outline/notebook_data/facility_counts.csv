@@ -1,0 +1,21 @@
+metric_id,geography,subgeography,value,unit,observation_period,series_type
+dcm_us_country_total,United States,All,4767,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_country_total,Canada,All,292,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Virginia,674,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Texas,537,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,California,296,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Georgia,276,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Illinois,242,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Ohio,240,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Pennsylvania,174,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Arizona,160,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,New York,135,unique facilities,2026-08-21,directory_snapshot
+dcm_us_state_counts,United States,Oregon,135,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Toronto,68,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Montreal,54,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Vancouver,31,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Calgary,20,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Edmonton,17,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Quebec,16,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Winnipeg,10,unique facilities,2026-08-21,directory_snapshot
+dcm_ca_market_counts,Canada,Mississauga,9,unique facilities,2026-08-21,directory_snapshot

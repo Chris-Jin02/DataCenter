@@ -1,0 +1,61 @@
+facility_id,facility_name,operator,city,county,latitude,longitude,location_precision,location_confidence,status_normalized,facility_type,analysis_scope,nearest_neighbor_km,cluster
+TNDC-001,Flexential - Nashville/Brentwood (NAS01/04),Flexential,Brentwood,Williamson,35.972453,-86.808748,address_or_site,high,operational,data_center,core_data_center,3.2412571929602416,C2 Nashville area
+TNDC-002,CleanSpark Campbell Junction Bitcoin Mining Facility,"CleanSpark, Inc.",Crossville,Cumberland,36.0436,-85.1692,approximate,medium,operational,crypto_mining,crypto_mining,16.590300834865744,Noise / isolated
+TNDC-003,DC BLOX CHA1 - DCBLOX Chattanooga,DC BLOX Parent LLC,Chattanooga,Hamilton,35.03158,-85.2973,address_or_site,high,operational,data_center,core_data_center,0.7537456534096124,C3 Chattanooga area
+TNDC-004,Jailhouse Studios (former Hamilton County Jail),Urban Story Ventures,Chattanooga,Hamilton,35.049557,-85.30803,address_or_site,high,under_construction,data_center,core_data_center,1.9070293954146607,C3 Chattanooga area
+TNDC-005,Peace Communications CHA1,Scipio Technologies,Chattanooga,Hamilton,35.03746,-85.293181,address_or_site,high,operational,interconnection_facility,core_data_center,0.7537456534096124,C3 Chattanooga area
+TNDC-007,Google Montgomery County Data Center,Google,Clarksville,Montgomery,36.62078,-87.2622,address_or_site,high,operational,data_center,core_data_center,57.1720210486898,Noise / isolated
+TNDC-008,Collierville Enterprise Data Center (FedEx World Technology Center Campus),Aphorio Carter,Collierville,Shelby,35.04204,-89.66453,address_or_site,high,operational,data_center,core_data_center,11.31197067452083,C1 Memphis area
+TNDC-009,CleanSpark West Crossville Bitcoin Mining Facility,"CleanSpark, Inc.",Crossville,Cumberland,35.9487,-85.0269,approximate,medium,operational,crypto_mining,crypto_mining,16.590300834865744,Noise / isolated
+TNDC-010,CleanSpark Decatur Bitcoin Mining Facility,"CleanSpark, Inc.",Decatur,Meigs,35.5148,-84.7902,approximate,medium,operational,crypto_mining,crypto_mining,52.76647745819776,Noise / isolated
+TNDC-011,Flexential - Nashville/Cool Springs (NAS02/03),Flexential,Franklin,Williamson,35.951091,-86.833251,address_or_site,high,operational,data_center,core_data_center,3.2412571929602416,C2 Nashville area
+TNDC-012,Flexential - Nashville/Franklin (NAS05/06),Flexential,Franklin,Williamson,35.92028,-86.815618,address_or_site,high,operational,data_center,core_data_center,3.651441105288981,C2 Nashville area
+TNDC-013,TierPoint Nashville,TierPoint,Franklin,Williamson,35.924575,-86.85582,address_or_site,high,operational,data_center,core_data_center,3.5807646721207775,C2 Nashville area
+TNDC-014,Centersquare Gallatin (NAS) Campus,Centersquare,Gallatin,Sumner,36.40406,-86.39812,exact,high,operational,data_center,core_data_center,2.3980314314913422,Noise / isolated
+TNDC-015,Meta Gallatin Data Center Campus,Meta,Gallatin,Sumner,36.41011,-86.3724,address_or_site,medium,operational,data_center,core_data_center,2.3980314314913422,Noise / isolated
+TNDC-016,CleanSpark Jellico Bitcoin Mining Facility,"CleanSpark, Inc.",Jellico,Campbell,36.5825,-84.1306,approximate,medium,operational,crypto_mining,crypto_mining,28.993472678439456,Noise / isolated
+TNDC-017,Bitdeer Knoxville AI Datacenter (5101 S. National Drive),Bitdeer,Knoxville,Knox,35.941272,-83.836066,address_or_site,high,operational,data_center,core_data_center,7.584785746838887,C4 Knoxville area
+TNDC-018,Peace Communications KNX1,Scipio Technologies,Knoxville,Knox,35.965586,-83.921438,address_or_site,high,operational,interconnection_facility,core_data_center,0.9925133513977842,C4 Knoxville area
+TNDC-019,CleanSpark Lenoir City Bitcoin Mining Facility,"CleanSpark, Inc.",Lenoir City,Loudon,35.7973,-84.256,approximate,medium,operational,crypto_mining,crypto_mining,4.917109437997018,C4 Knoxville area
+TNDC-020,CleanSpark Limestone Bitcoin Mining Facility (closed 2026),"CleanSpark, Inc.",Limestone,Washington,36.2235,-82.625,approximate,medium,cancelled,crypto_mining,crypto_mining,57.04525527757844,Noise / isolated
+TNDC-021,Arnold Air Force Base Data Center,Arnold Engineering Development Complex (AEDC),Manchester,Coffee,35.37539,-86.07293,approximate_site,medium,cancelled,data_center,core_data_center,43.677395841444316,Noise / isolated
+TNDC-022,CleanSpark Maynardville Bitcoin Mining Facility,"CleanSpark, Inc.",Maynardville,Union,36.2506,-83.7974,approximate,medium,operational,crypto_mining,crypto_mining,27.742211552743488,Noise / isolated
+TNDC-023,Hixson Data Center (McMinnville),Hixson Data Center,McMinnville,Warren,35.718937,-85.83887,approximate_site,medium,proposed,data_center,core_data_center,7.558644233045589,Noise / isolated
+TNDC-024,Litewire McMinnville (former A.O. Smith Building),Litewire,McMinnville,Warren,35.69221,-85.7619,exact,high,operational,data_center,core_data_center,7.558644233045589,Noise / isolated
+TNDC-026,DataBank Memphis (MEM1),DataBank,Memphis,Shelby,35.203086,-89.808615,address_or_site,high,operational,data_center,core_data_center,6.539315277195678,C1 Memphis area
+TNDC-027,EdgeConneX Memphis (EDCMEM01),EdgeConneX Inc.,Memphis,Shelby,35.038995,-89.88623,address_or_site,high,operational,interconnection_facility,core_data_center,0.345407154435508,C1 Memphis area
+TNDC-028,Expedient Memphis,Expedient,Memphis,Shelby,35.062965,-89.786143,address_or_site,high,operational,interconnection_facility,core_data_center,9.260825484465618,C1 Memphis area
+TNDC-029,Level(3) Memphis,Lumen Technologies Inc,Memphis,Shelby,35.028826,-89.930755,address_or_site,high,operational,interconnection_facility,core_data_center,0.6115269873521512,C1 Memphis area
+TNDC-030,xAI Colossus 1,xAI,Memphis,Shelby,35.05983,-90.1562,address_or_site,high,operational,data_center,core_data_center,12.992330991063099,C1 Memphis area
+TNDC-031,xAI Colossus 2,xAI,Memphis,Shelby,34.998074,-90.03507,address_or_site,high,expanding,data_center,core_data_center,9.853330615023175,C1 Memphis area
+TNDC-032,DC BLOX Nashville (Grassmere Park),DC BLOX,Nashville,Davidson,36.090492,-86.74721,address_or_site,high,proposed,data_center,core_data_center,1.5634296886990042,C2 Nashville area
+TNDC-033,EdgeConneX Nashville (EDCNAS01),EdgeConneX Inc.,Nashville,Davidson,36.144881,-86.701721,address_or_site,high,operational,interconnection_facility,core_data_center,1.97631402313534,C2 Nashville area
+TNDC-034,H5 Data Centers Nashville,H5 Data Centers,Nashville,Davidson,36.1628,-86.77863,address_or_site,high,operational,data_center,core_data_center,0.20868548031879056,C2 Nashville area
+TNDC-035,H5 Data Centers Nashville (TN01),IRIS,Nashville,Davidson,36.162621,-86.776316,address_or_site,high,operational,interconnection_facility,core_data_center,0.20868548031879056,C2 Nashville area
+TNDC-036,Level(3) Nashville (9th Ave),Lumen Technologies Inc,Nashville,Davidson,36.189148,-86.804111,address_or_site,high,operational,interconnection_facility,core_data_center,2.398922773859148,C2 Nashville area
+TNDC-037,Level(3) Nashville (Sidco Drive),Lumen Technologies Inc,Nashville,Davidson,36.102726,-86.755786,address_or_site,high,operational,interconnection_facility,core_data_center,1.5634296886990042,C2 Nashville area
+TNDC-038,Peace Communications NSH2,Scipio Technologies,Nashville,Davidson,36.103326,-86.668932,address_or_site,high,operational,interconnection_facility,core_data_center,5.053066150501165,C2 Nashville area
+TNDC-039,Quantum Leap Data Center/ Fisk University,,Nashville,Davidson,36.167574,-86.8041028,address_or_site,high,proposed,data_center,core_data_center,2.3474989728780096,C2 Nashville area
+TNDC-040,RadiusDC Nashville I,RadiusDC,Nashville,Davidson,36.27987,-86.7837,approximate,medium,under_construction,data_center,core_data_center,10.252603292630376,C2 Nashville area
+TNDC-041,XO Nashville,XO,Nashville,Davidson,36.158837,-86.772516,address_or_site,high,operational,interconnection_facility,core_data_center,0.5416832532179527,C2 Nashville area
+TNDC-042,Zayo Nashville - 209 10th Ave. S,DataBank,Nashville,Davidson,36.155165,-86.782559,address_or_site,high,operational,interconnection_facility,core_data_center,0.919336050690683,C2 Nashville area
+TNDC-043,CleanSpark New Tazewell Bitcoin Mining Facility,"CleanSpark, Inc.",New Tazewell,Claiborne,36.4426,-83.5996,approximate,medium,operational,crypto_mining,crypto_mining,27.742211552743488,Noise / isolated
+TNDC-044,CleanSpark Oneida Bitcoin Mining Facility,"CleanSpark, Inc.",Oneida,Scott,36.4981,-84.5127,approximate,medium,operational,crypto_mining,crypto_mining,7.652358031520108,Noise / isolated
+TNDC-045,CleanSpark Winfield Bitcoin Mining Facility,"CleanSpark, Inc.",Winfield,Scott,36.5467887,-84.4521787,address_or_site,high,operational,crypto_mining,crypto_mining,7.652358031520108,Noise / isolated
+TNDC-046,LCUB Data Center,Lenoir City Utilities Board,Lenoir City,Loudon,35.840815,-84.265703,address_or_site,high,operational,data_center,core_data_center,4.917109437997018,C4 Knoxville area
+TNDC-047,TenHats Knoxville Data Center,TenHats,Knoxville,Knox,35.97048129,-83.91221605,approximate_site,medium,operational,data_center,core_data_center,0.9925133513977842,C4 Knoxville area
+TNDC-048,Infinity Data Center,Infinity Data Center,Knoxville,Knox,35.9585,-84.1392,address_or_site,high,operational,data_center,core_data_center,1.4454623860163978,C4 Knoxville area
+TNDC-049,Windstream / Uniti Knoxville,Uniti Wholesale,Knoxville,Knox,35.95217137,-84.12517265,approximate_site,medium,operational,interconnection_facility,core_data_center,1.4454623860163978,C4 Knoxville area
+TNDC-050,Aeneas Data Center,Aeneas Internet and Telephone,Jackson,Madison,35.6163439553,-88.8159272209,address_or_site,high,operational,interconnection_facility,core_data_center,26.935339531731145,Noise / isolated
+TNDC-051,MCA Chattanooga Data Center,MCA Technology Solutions,Chattanooga,Hamilton,35.07589,-85.18455,address_or_site,high,operational,data_center,core_data_center,10.771741932562511,C3 Chattanooga area
+TNDC-052,Data Suites Murfreesboro,Data Suites,Murfreesboro,Rutherford,35.856076,-86.405338,address_or_site,high,operational,data_center,core_data_center,36.31029124683534,Noise / isolated
+TNDC-053,Windstream / Uniti Brentwood,Uniti Wholesale,Brentwood,Williamson,36.037186,-86.806206,address_or_site,high,operational,interconnection_facility,core_data_center,7.201622189296339,C2 Nashville area
+TNDC-054,Lumen Nashville 2,Lumen Technologies,Nashville,Davidson,36.14787701,-86.68002591,approximate_site,medium,operational,data_center,core_data_center,1.97631402313534,C2 Nashville area
+TNDC-055,Lumen Nashville 4 / Berry Hill,Lumen Technologies,Nashville,Davidson,36.1202759,-86.7623382,address_or_site,high,operational,data_center,core_data_center,1.5108414767067408,C2 Nashville area
+TNDC-056,Saragon Nashville,Saragon,Nashville,Davidson,36.13170626,-86.75324366,approximate_site,medium,operational,data_center,core_data_center,1.5108414767067408,C2 Nashville area
+TNDC-057,WorldSpice Data Center,WorldSpice Technologies,Memphis,Shelby,35.1132403,-89.8928537,address_or_site,high,operational,data_center,core_data_center,6.183699762876889,C1 Memphis area
+TNDC-058,Connect Data Centers Memphis,Connect Data Centers,Memphis,Shelby,35.0417724,-89.8845309,address_or_site,high,operational,data_center,core_data_center,0.345407154435508,C1 Memphis area
+TNDC-059,5C MEM01,5C,Memphis,Shelby,35.0327269,-89.9354893,approximate_site,medium,under_construction,data_center,core_data_center,0.6115269873521512,C1 Memphis area
+TNDC-060,The STEM Practice Memphis,The STEM Practice,Memphis,Shelby,35.161945,-89.860031,address_or_site,high,proposed,data_center,core_data_center,6.183699762876889,C1 Memphis area
+TNDC-061,Humboldt / Gibson County Crypto Mining Facility,Undisclosed private developer (Humboldt Utilities customer),Humboldt,Gibson,35.842805,-88.921847,approximate_site,medium,under_construction,crypto_mining,crypto_mining,26.935339531731145,Noise / isolated
+TNDC-062,Windstream Bristol Data Center,Windstream,Bristol,Sullivan,36.593557,-82.183509,address_or_site,high,operational,data_center,core_data_center,57.04525527757844,Noise / isolated

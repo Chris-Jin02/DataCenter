@@ -1,0 +1,75 @@
+site_id,facility_name,record_role,candidate_type,candidate_confidence,location_precision,location_confidence,primary_weight,weighted_weight,strict_weight,weight_basis
+TNDC-001,Flexential - Nashville/Brentwood (NAS01/04),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-002,CleanSpark Campbell Junction Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-003,DC BLOX CHA1 - DCBLOX Chattanooga,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-004,Jailhouse Studios (former Hamilton County Jail),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-005,Peace Communications CHA1,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-007,Google Montgomery County Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-008,Collierville Enterprise Data Center (FedEx World Technology Center Campus),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-009,CleanSpark West Crossville Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-010,CleanSpark Decatur Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-011,Flexential - Nashville/Cool Springs (NAS02/03),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-012,Flexential - Nashville/Franklin (NAS05/06),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-013,TierPoint Nashville,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-014,Centersquare Gallatin (NAS) Campus,confirmed_master,,,exact,high,1.0,1.0,1.0,confirmed Master
+TNDC-015,Meta Gallatin Data Center Campus,confirmed_master,,,address_or_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-016,CleanSpark Jellico Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-017,Bitdeer Knoxville AI Datacenter (5101 S. National Drive),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-018,Peace Communications KNX1,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-019,CleanSpark Lenoir City Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-020,CleanSpark Limestone Bitcoin Mining Facility (closed 2026),confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-021,Arnold Air Force Base Data Center,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-022,CleanSpark Maynardville Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-023,Hixson Data Center (McMinnville),confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-024,Litewire McMinnville (former A.O. Smith Building),confirmed_master,,,exact,high,1.0,1.0,1.0,confirmed Master
+TNDC-026,DataBank Memphis (MEM1),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-027,EdgeConneX Memphis (EDCMEM01),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-028,Expedient Memphis,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-029,Level(3) Memphis,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-030,xAI Colossus 1,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-031,xAI Colossus 2,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-032,DC BLOX Nashville (Grassmere Park),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-033,EdgeConneX Nashville (EDCNAS01),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-034,H5 Data Centers Nashville,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-035,H5 Data Centers Nashville (TN01),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-036,Level(3) Nashville (9th Ave),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-037,Level(3) Nashville (Sidco Drive),confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-038,Peace Communications NSH2,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-039,Quantum Leap Data Center/ Fisk University,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-040,RadiusDC Nashville I,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-041,XO Nashville,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-042,Zayo Nashville - 209 10th Ave. S,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-043,CleanSpark New Tazewell Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-044,CleanSpark Oneida Bitcoin Mining Facility,confirmed_master,,,approximate,medium,1.0,1.0,1.0,confirmed Master
+TNDC-045,CleanSpark Winfield Bitcoin Mining Facility,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-046,LCUB Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-047,TenHats Knoxville Data Center,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-048,Infinity Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-049,Windstream / Uniti Knoxville,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-050,Aeneas Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-051,MCA Chattanooga Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-052,Data Suites Murfreesboro,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-053,Windstream / Uniti Brentwood,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-054,Lumen Nashville 2,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-055,Lumen Nashville 4 / Berry Hill,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-056,Saragon Nashville,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-057,WorldSpice Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-058,Connect Data Centers Memphis,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-059,5C MEM01,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-060,The STEM Practice Memphis,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNDC-061,Humboldt / Gibson County Crypto Mining Facility,confirmed_master,,,approximate_site,medium,1.0,1.0,1.0,confirmed Master
+TNDC-062,Windstream Bristol Data Center,confirmed_master,,,address_or_site,high,1.0,1.0,1.0,confirmed Master
+TNCAND-002,Horizon Center TVA Certified Data Center Site,candidate,certified_data_center_site,high,approximate_site,medium,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-003,Corridor Park Lots 21 & 23 TVA Certified Data Center Site,candidate,certified_data_center_site,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-004,Tiger Jones Technology Park Enterprise Data Center Site,candidate,certified_primary_data_center_site,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-005,GRIID Jackson 60 MW Bitcoin Mining Project,candidate,announced_crypto_mining_site,medium,address_or_site,high,0.0,0.5,0.5,Candidate evidence confidence
+TNCAND-006,Atmosphere Nashville 120 MW Campus,candidate,proposed_data_center_campus,medium,area_or_city,low,0.0,0.5,0.0,Candidate evidence confidence
+TNCAND-007,Tennessee State Data Center South,candidate,operational_government_data_center,high,approximate_site,medium,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-008,Tennessee State Data Center North,candidate,operational_government_data_center,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-009,Oak Ridge Leadership Computing Facility / NICS shared ORNL site,candidate,operational_research_computing_facility,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-011,Vanderbilt ACCRE Data Center Rooms,candidate,operational_research_computing_facility,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence
+TNCAND-013,Airnet / Dataprise Chattanooga,candidate,legacy_operational_listing,medium,address_or_site,high,0.0,0.5,0.5,Candidate evidence confidence
+TNCAND-014,Windstream Nashville — 940 3rd Ave N,candidate,legacy_operational_listing,medium,address_or_site,high,0.0,0.5,0.5,Candidate evidence confidence
+TNCAND-015,Verizon / XO Memphis,candidate,legacy_operational_listing,medium,address_or_site,high,0.0,0.5,0.5,Candidate evidence confidence
+TNCAND-016,Lumen Memphis 2 / former tw telecom,candidate,legacy_operational_listing,medium,address_or_site,high,0.0,0.5,0.5,Candidate evidence confidence
+TNCAND-017,CleanSpark Mountain City 30 MW Bitcoin Mining Proposal,candidate,cancelled_crypto_mining_proposal,high,address_or_site,high,0.0,0.75,0.75,Candidate evidence confidence

@@ -2,6 +2,10 @@
 
 > Current geographic focus: Tennessee
 
+## Modeling progress
+
+Updated September 14, 2026: [Phase 2](model/phase%202/README.md) is frozen and [Phase 3A](model/phase%203/README.md) has registered the model-input contract and spatial validation folds. Phase 3 model training has not started. The frozen Phase 2 cohorts are Primary 60, Weighted 74, and Strict 73; these modeling cohorts are distinct from inventory counts below. Earlier Proposal cohort counts and immediate-next-step text reflect an older planning snapshot.
+
 This project maintains a public Tennessee data-center inventory, an interactive facility map, and a state-level spatial-analysis framework. The Tennessee workflow is kept separate from the broader national research materials in [`../DCUS/`](../DCUS/).
 
 ## Current Snapshot
@@ -34,6 +38,13 @@ TN/
 ├── dataset/
 │   ├── tennessee_public_data_centers.xlsx
 │   └── Tennessee Data Center Dataset Update and Compatibility Specification.md
+├── model/
+│   └── phase 1/
+│       ├── 01_dc_geographic_clusters.ipynb
+│       └── README.md
+├── presentation/
+│   ├── Tennessee_Data_Center_Current_Analysis.pptx
+│   └── README.md
 └── Map/
     ├── README.md
     ├── tennessee_dcmap.html
@@ -51,6 +62,11 @@ TN/
 
 - [`dataset/tennessee_public_data_centers.xlsx`](dataset/tennessee_public_data_centers.xlsx) contains the normalized Master inventory, candidate sites, source-aligned records, audits, and change history.
 - [`dataset/Tennessee Data Center Dataset Update and Compatibility Specification.md`](dataset/Tennessee%20Data%20Center%20Dataset%20Update%20and%20Compatibility%20Specification.md) defines the schema and update rules.
+
+### Analysis and presentation
+
+- [`model/phase 1/README.md`](model/phase%201/README.md) documents the current geographic and feature-space analysis, data sources, and interpretation boundaries.
+- [`presentation/README.md`](presentation/README.md) describes the updated 18-slide presentation and its data alignment.
 
 ### Map
 

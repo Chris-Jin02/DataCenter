@@ -1,0 +1,5 @@
+metric_id,geography,market,status,value,unit,observation_period,series_type
+cw_americas_operational,Americas,All Americas,Operational,43.4,GW,H2 2025,operational
+cw_americas_under_construction,Americas,All Americas,Under construction,25.3,GW,H2 2025,under_construction
+cw_virginia_under_construction,United States,Virginia,Under construction,6.3,GW,H2 2025,under_construction
+cw_west_texas_under_construction,United States,West Texas,Under construction,2.9,GW,H2 2025,under_construction

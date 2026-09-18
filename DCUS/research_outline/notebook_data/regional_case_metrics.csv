@@ -1,0 +1,12 @@
+metric_id,geography,metric,value,unit,observation_period,scenario,series_type
+jlarc_va_sites,Virginia,data center sites,150,sites,2024,source estimate,estimated
+jlarc_va_buildings,Virginia,data center buildings,340,buildings,2024,source estimate,estimated
+jlarc_va_power,Virginia,estimated operational power requirement,5050,MW,2024 peak-load forecast,source estimate,estimated
+eia_ercot_load_growth,ERCOT,average annual electricity-load growth,10,percent,2025-2027,STEO baseline,forecast_reference
+eia_pjm_load_growth,PJM,average annual electricity-load growth,3,percent,2025-2027,STEO baseline,forecast_reference
+ieso_on_dc_low,Ontario,data center net annual energy demand,3,TWh,2027,low demand,forecast_low
+ieso_on_dc_low,Ontario,data center net annual energy demand,14,TWh,2050,low demand,forecast_low
+ieso_on_dc_reference,Ontario,data center net annual energy demand,4.5,TWh,2027,reference,forecast_reference
+ieso_on_dc_reference,Ontario,data center net annual energy demand,22.6,TWh,2050,reference,forecast_reference
+ieso_on_dc_high,Ontario,data center net annual energy demand,4.5,TWh,2027,high demand,forecast_high
+ieso_on_dc_high,Ontario,data center net annual energy demand,28.4,TWh,2050,high demand,forecast_high

@@ -1,0 +1,5 @@
+metric_id,geography,boundary,value,unit,observation_period,series_type
+iea_na_facility_capacity,North America,facility-side installed capacity,43,GW,2024,estimated
+iea_na_it_capacity,North America,IT installed capacity,32,GW,2024,estimated
+iea_us_facility_capacity,United States,facility-side installed capacity,42,GW,2024,estimated
+iea_us_it_capacity,United States,IT installed capacity,31,GW,2024,estimated

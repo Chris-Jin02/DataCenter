@@ -1,7 +1,7 @@
 # Tennessee data-center siting ranking and scoring workflow
 
-**Status date:** 2026-09-14  
-**Current execution point:** Phase 3G complete; Phase 3H is next  
+**Status date:** 2026-09-19
+**Current execution point:** Phase 4 released as `TN-DC-1.0.0`; Phase 5 is deferred
 **Frozen Phase 2 source:** `phase2_model_dataset.xlsx`  
 **Frozen source SHA-256:** `112d6db67d7f4f9e74fa8edde3406937e1f8eb7145e9bc04a64e7030cf1d3e03`
 
@@ -20,7 +20,7 @@ The final product is a decision-support package for screening locations inside t
 
 The score is a relative ranking within the versioned Tennessee D1 domain. It is not a construction probability and does not establish available electric capacity, interconnection approval, fiber quality, water allocation, land control, permitting success, community acceptance, or commercial feasibility.
 
-The project logic is:
+The released Phase 1–4 logic is:
 
 ```text
 Audited site evidence
@@ -29,8 +29,10 @@ Audited site evidence
         -> statewide unsupervised environment regimes
         -> supervised/unsupervised evidence comparison
         -> cell and candidate scoring with uncertainty flags
-        -> project-level engineering and commercial review
-        -> versioned release, monitoring, and closeout
+        -> versioned release and verification
+
+Project-level engineering and commercial review is the deferred Phase 5
+follow-on and is not a prerequisite for the Phase 1–4 release.
 ```
 
 ## 2. Frozen analytical foundation
@@ -138,9 +140,9 @@ A nonlinear challenger is optional. It will be activated only if a reproducible 
 | Phase 3E | Statewide unsupervised environmental regimes | Complete |
 | Phase 3F | Final supervised model selection, fitting, and statewide prediction | Complete |
 | Phase 3G | Supervised–unsupervised evidence reconciliation | Complete |
-| Phase 3H | Phase 3 freeze and release decision | Next |
-| Phase 4 | Final cell and candidate scoring product | Planned |
-| Phase 5 | Shortlist diligence bridge and decision workflow | Planned |
+| Phase 3H | Phase 3 freeze and release decision | Complete |
+| Phase 4 | Final cell and candidate scoring product | Released as TN-DC-1.0.0 |
+| Phase 5 | Shortlist diligence bridge and decision workflow | Deferred |
 | Phase 6 | Release, prospective monitoring, updates, and project closeout | Planned |
 
 ## 5. Phase 3D — sensitivity, influence, and rule registration
@@ -155,7 +157,7 @@ Determine whether the current supervised signal is stable enough to support stat
 2. Aggregate the completed Phase 3C results by scenario, validation scheme, fold, model, and draw.
 3. Compare Primary, Weighted, and Strict results using held-out mean percentile, top-decile capture, top-quintile capture, and background AUC as a secondary diagnostic.
 4. Measure rank and coefficient stability across draws and identify any fold, scenario, or feature whose conclusion reverses.
-5. Reconstruct the 5:1 samples from the registered random order and verify that each sample is a prefix of its 10:1 counterpart; rerun the two approved logistic specifications under the existing folds.
+5. Reconstruct the 5:1 samples from the registered random order and verify that each sample is a prefix of its 10:1 counterpart; retain the two logistic specifications as the Phase 3D benchmark comparison.
 6. Attempt the 20:1 reconstruction only from the frozen sampling rules, seeds, audit quotas, and cell IDs. If exact reconstruction fails, record it as unavailable rather than generating a different design.
 7. Run occupied-cell and large-campus influence checks so that repeated records in one market or campus cannot dominate the conclusion.
 8. Register a metropolitan boundary definition before any leave-one-metro-out analysis. If no defensible frozen boundary is available, retain the completed grand-region and 200 km block results as the formal validation and document metro validation as unavailable.
@@ -164,7 +166,7 @@ Determine whether the current supervised signal is stable enough to support stat
 
 ### Required release rule
 
-Each required Primary fold in both registered validation systems must have a median held-out presence percentile above 0.50, and its fifth percentile across draws must also remain above 0.50. Any failure must be shown separately. Among passing supervised specifications, selection maximizes the worst-fold median percentile across the two validation systems. If the difference is at most 0.02, the simpler screened logistic is selected. Scenario and influence results may block release when they show a material rank reversal, even if mean performance is high.
+The Phase 3D benchmark required each Primary fold to exceed the registered 0.50 held-out threshold and recorded the simpler-model tie rule. The final Phase 3 selection then compared Elastic Net, PLS-logistic, spline-logistic, and constrained boosted-stump candidates under the retained spatial-fold evidence; `pls_logistic` had the highest recorded worst-fold median weighted AUC and was frozen in the Phase 3H closeout. Scenario and influence results remain release constraints when they show a material rank reversal, even if mean performance is high.
 
 ### Output
 
@@ -208,7 +210,7 @@ Select one transparent ranking specification under the Phase 3D rule, fit it rep
 
 ### Implementation
 
-1. Select between the screened logistic and the training-fold contract logistic using the frozen worst-fold rule and the Phase 3D stability decision.
+1. Compare the retained candidate specifications under the frozen spatial-fold rule and select the registered winner, `pls_logistic`, for the release package.
 2. Use Primary as the anchor learning population. Use Weighted and Strict to measure how Candidate evidence and coordinate quality change statewide ranks.
 3. Repeat preprocessing and any representative feature selection within training folds for validation. Fit final full-domain versions separately for each background draw after the specification is selected.
 4. Preserve 20 draw-specific predictions rather than averaging predictor rows or background samples before fitting.
@@ -257,9 +259,9 @@ The supervised percentile remains the only learned scalar score. The unsupervise
 
 One result workbook and map set with the joined evidence states, regime-by-score comparisons, scenario sensitivity, and exception review.
 
-## 9. Phase 3H — Phase 3 freeze and scoring-release decision
+## 9. Phase 3H — Phase 3 freeze and scoring-release decision (completed)
 
-### Implementation
+### Recorded implementation
 
 1. Verify that every Phase 3 result reads the frozen Phase 2 workbook and records its SHA-256 hash.
 2. Confirm no IDs, coordinates, domain flags, fold IDs, sampling strata, or cluster labels entered a supervised predictor matrix.
@@ -271,13 +273,13 @@ One result workbook and map set with the joined evidence states, regime-by-score
 
 ### Output
 
-A Phase 3 closeout workbook and updated Phase 3 README. Phase 3 is complete only when the release decision and all unresolved dependencies are explicit.
+A Phase 3 release closeout record and updated Phase 3 README. The release decision and all unresolved dependencies are explicit in `model/phase 3/results/phase3_release_closeout.md`.
 
 ## 10. Phase 4 — final ranking and scoring product
 
 ### Purpose and boundary
 
-Phase 4 operationalizes the frozen Phase 3 model. It does not select features, tune hyperparameters, retrain a model, or change a coefficient. The current release candidate is the 21-feature `pls_logistic` model selected from Elastic Net, PLS-logistic, spline-logistic, and constrained boosted-stump candidates by spatial three-fold performance. Its 20 Primary-draw models, all candidate-model weights, and D1-only PCA/KMeans model are retained in `phase3_final_model_weights.json`.
+Phase 4 operationalizes the frozen Phase 3 model. It does not select features, tune hyperparameters, retrain a model, or change a coefficient. The released model is the 21-feature `pls_logistic` model selected from Elastic Net, PLS-logistic, spline-logistic, and constrained boosted-stump candidates by spatial three-fold performance. Its 20 Primary-draw models, all candidate-model weights, and D1-only PCA/KMeans model are retained in `phase3_final_model_weights.json`.
 
 ### 4A — release lock and score contract
 
@@ -418,8 +420,8 @@ Running additional algorithms is not a completion criterion. If a required model
 | B — Spatial separation | Three grand-region folds and three 200 km block folds contain usable support and have zero train/test spatial overlap | Passed |
 | C — Supervised ranking | Required Primary folds beat the registered random-ranking rule with convergence and no leakage | Provisionally supported; final rule applied in 3D |
 | D — Stability and influence | Scenario, background-ratio, draw, fold, and occupied-cell checks do not show an unexplained material reversal | Conditional pass — 5:1 and occupied-cell checks complete; 20:1, metro, and alternate-grid extensions unavailable |
-| E — Unsupervised structure | D1 regimes are stable and interpretable; enrichment, high-score distribution, and novelty are reported | Partially complete — D1 regimes, enrichment, and novelty complete; high-score distribution awaits Phase 3F–3G |
-| F — Score release | Complete D1 table, uncertainty, regime context, OOD flags, score version, model card, and user guide pass QA | Pending Phase 4 |
+| E — Unsupervised structure | D1 regimes are stable and interpretable; enrichment, high-score distribution, and novelty are reported | Passed |
+| F — Score release | Complete D1 table, uncertainty, regime context, OOD flags, score version, model card, and user guide pass QA | Passed in Phase 4 |
 | G — Prospective evidence | Post-freeze sites are evaluated without changing the released model | Begins after release |
 
 ## 14. Source-of-truth and file policy

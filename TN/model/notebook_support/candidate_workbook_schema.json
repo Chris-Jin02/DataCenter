@@ -1,0 +1,23 @@
+{
+  "version": "TN-DC-1.0.0",
+  "columns": {
+    "candidate_rank": {"label": "Rank", "type": "integer"},
+    "site_id": {"label": "ID", "type": "string"},
+    "site_name": {"label": "Candidate", "type": "string"},
+    "candidate_type": {"label": "Type", "type": "string"},
+    "candidate_confidence": {"label": "Confidence", "type": "string"},
+    "latitude": {"label": "Latitude", "type": "number"},
+    "longitude": {"label": "Longitude", "type": "number"},
+    "final_score": {"label": "Final score", "type": "number"},
+    "final_raw_score": {"label": "Raw score", "type": "number"},
+    "score_p05": {"label": "P05", "type": "number"},
+    "score_p95": {"label": "P95", "type": "number"},
+    "score_iqr": {"label": "IQR", "type": "number"},
+    "grid_regime": {"label": "Regime", "type": "string"},
+    "regime_distance": {"label": "Regime distance", "type": "number"},
+    "novelty_flag": {"label": "Novelty", "type": "string"},
+    "review_band": {"label": "Review band", "type": "string"},
+    "external_score_notice": {"label": "External-score note", "type": "string"},
+    "required_diligence_checks": {"label": "Required diligence", "type": "string"}
+  }
+}

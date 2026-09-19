@@ -1,5 +1,7 @@
 # Tennessee Data Center Research
 
+Browse the [proposal](Proposal/README.md), [source dataset](dataset/README.md), [model workflow](model/README.md), [map](Map/README.md), and [verification tests](tests/README.md).
+
 This project provides a reproducible statewide screening and ranking workflow for Tennessee data-center locations. It combines a public facility inventory, spatial features, a constrained candidate domain, spatial validation, and a released scoring package. The resulting score ranks observed feature affinity within the modeled domain; it is not a construction forecast, engineering approval, or substitute for project diligence.
 
 ## Current release
@@ -72,16 +74,20 @@ TN/
 │   ├── TN_DC_Map_Generator.ipynb
 │   ├── template/TN_dcmap_template.html
 │   └── tennessee_dcmap.html
-├── Proposal/Tennessee_spatial_analysis.md
+├── Proposal/
+│   ├── README.md
+│   └── Tennessee_spatial_analysis.md
 ├── dataset/
 │   ├── tennessee_public_data_centers.xlsx
 │   └── Tennessee Data Center Dataset Update and Compatibility Specification.md
 ├── model/
-│   ├── phase 1/
-│   ├── phase 2/
-│   ├── phase 3/
-│   └── phase 4/
-└── notebook_support/tn_common.py
+│   ├── README.md
+│   ├── notebook_support/        # shared Phase 2–4 helpers and export scripts
+│   ├── phase 1/                 # notebook, results, figures, and weights
+│   ├── phase 2/                 # notebooks and frozen modeling workbook
+│   ├── phase 3/                 # notebooks, validation results, and figures
+│   └── phase 4/                 # release notebook and TN-DC-1.0.0 products
+└── tests/                       # release and helper verification modules
 ```
 
 ## Key files
@@ -93,6 +99,10 @@ TN/
 - [`model/phase 3/README.md`](model/phase%203/README.md) documents the validation design, model comparison, and scoring workflow.
 - [`model/phase 4/README.md`](model/phase%204/README.md) describes the release package and decision products.
 - [`model/phase 4/results/TN-DC-1.0.0_model_card.md`](model/phase%204/results/TN-DC-1.0.0_model_card.md) defines score semantics, model limits, and intended use.
+
+## Notebook execution layout
+
+The GitHub tree stores this project directly under `TN/`. Several Phase 2–4 notebook setup cells still search for a local `outputs/Data center/TN` tree while importing helpers from `TN/model/notebook_support`. A fresh clone therefore needs path configuration before those notebooks can run. See the [model workflow and execution notes](model/README.md) for details. Released tables and figures can be inspected directly.
 
 ## Updating the map
 

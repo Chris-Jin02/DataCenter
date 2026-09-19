@@ -1,5 +1,9 @@
 # Phase 4 release
 
+[Model workflow](../README.md) · [Previous: Phase 3](../phase%203/README.md)
+
+The [release notebook](phase4_release_and_products.ipynb) is beside this README. All versioned deliverables are in [results](results/). The shared [Python and JavaScript support](../notebook_support/README.md) lives one directory above this phase. Review the [execution-layout notes](../README.md) before rerunning the release.
+
 Status: released as `TN-DC-1.0.0` after 4E verification.
 
 ## Frozen inputs

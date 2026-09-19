@@ -1,5 +1,16 @@
 # Tennessee Data Center Map
 
+[Project overview](../README.md) · [Source dataset](../dataset/README.md)
+
+## Files and workflow
+
+- [Map generator](TN_DC_Map_Generator.ipynb): reads the [source inventory](../dataset/tennessee_public_data_centers.xlsx) and produces the interactive map.
+- [HTML template](template/TN_dcmap_template.html): map source template.
+- [Generated map](tennessee_dcmap.html): retained interactive HTML product.
+- [Preview image](tennessee_dcmap_preview.png): static preview for documentation.
+
+Run the generator from `TN/Map/` after updating and validating the source workbook. The analytical score maps are separate products in [Phase 4 results](../model/phase%204/README.md).
+
 ## Sources and Attribution
 
 ### Facility data

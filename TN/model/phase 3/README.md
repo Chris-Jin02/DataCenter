@@ -1,5 +1,9 @@
 # Phase 3: validation, model selection, and scoring registry
 
+[Model workflow](../README.md) · [Previous: Phase 2](../phase%202/README.md) · [Next: Phase 4](../phase%204/README.md)
+
+Executable notebooks are in [code](code/README.md), retained workbooks and weights are in [results](results/), and map figures are in [results/figures](results/figures/). Shared Python helpers live in [model/notebook_support](../notebook_support/README.md). Read the [execution-layout notes](../README.md) before rerunning the notebooks.
+
 Phase 3A through 3H are complete. The frozen Phase 2 workbook remains unchanged (SHA-256: `112d6db67d7f4f9e74fa8edde3406937e1f8eb7145e9bc04a64e7030cf1d3e03`); its training inputs, field contract, and spatial partitions are the registered interface for the released model. Phase 3H froze `pls_logistic` as the Primary release specification; the release closeout records the selection evidence and handoff to Phase 4.
 
 ## Retention rules

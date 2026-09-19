@@ -1,5 +1,9 @@
 # Phase 1 presence weights
 
+[Phase 1 overview](../README.md) · [Analysis notebook](../01_dc_geographic_clusters.ipynb)
+
+The input feature matrix is [results/site_feature_matrix.csv](../results/site_feature_matrix.csv). The retained weight tables are [presence_weights.csv](presence_weights.csv) and [cohort_sensitivity_scenarios.csv](cohort_sensitivity_scenarios.csv).
+
 Status date: 2026-09-11.
 
 This directory contains sample weights for subsequent presence-background and PU models. A weight represents confidence in a record as presence evidence; it does not represent site suitability, project success, or construction probability.

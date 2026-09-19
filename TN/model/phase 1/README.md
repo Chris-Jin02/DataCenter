@@ -1,6 +1,6 @@
 # Phase 1: Tennessee data-center geographic clustering, feature clustering, and manual analysis
 
-[Model workflow](../README.md) · [Source dataset](../../dataset/README.md) · [Next: Phase 2](../phase%202/README.md)
+[Project overview](../../README.md) · [Source dataset](../../dataset/tennessee_public_data_centers.xlsx) · [Next: Phase 2](../phase%202/README.md)
 
 Directory layout: the [analysis notebook](01_dc_geographic_clusters.ipynb) is beside this README, analytical tables and maps are in [results](results/), PNGs are in [results/figures](results/figures/), and cohort weights are in [weights](weights/README.md).
 

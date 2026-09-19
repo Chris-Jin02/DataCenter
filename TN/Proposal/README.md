@@ -1,6 +1,6 @@
 # Tennessee research proposal
 
-[Project overview](../README.md) · [Model workflow](../model/README.md) · [Source dataset](../dataset/README.md)
+[Project overview](../README.md) · [Model files](../model/) · [Source dataset](../dataset/tennessee_public_data_centers.xlsx)
 
 This directory contains the research plan for the Tennessee data-center inventory, spatial analysis, model validation, and site-screening workflow.
 

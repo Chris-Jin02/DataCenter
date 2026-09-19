@@ -1,6 +1,6 @@
 # Tennessee Data Center Research
 
-Browse the [proposal](Proposal/README.md), [source dataset](dataset/README.md), [model workflow](model/README.md), [map](Map/README.md), and [verification tests](tests/README.md).
+Browse the [proposal](Proposal/README.md), [source dataset](dataset/tennessee_public_data_centers.xlsx), [model phases](model/), [map](Map/README.md), and [verification tests](tests/).
 
 This project provides a reproducible statewide screening and ranking workflow for Tennessee data-center locations. It combines a public facility inventory, spatial features, a constrained candidate domain, spatial validation, and a released scoring package. The resulting score ranks observed feature affinity within the modeled domain; it is not a construction forecast, engineering approval, or substitute for project diligence.
 
@@ -102,7 +102,7 @@ TN/
 
 ## Notebook execution layout
 
-The GitHub tree stores this project directly under `TN/`. Several Phase 2–4 notebook setup cells still search for a local `outputs/Data center/TN` tree while importing helpers from `TN/model/notebook_support`. A fresh clone therefore needs path configuration before those notebooks can run. See the [model workflow and execution notes](model/README.md) for details. Released tables and figures can be inspected directly.
+The GitHub tree stores this project directly under `TN/`. Several Phase 2–4 notebook setup cells still search for a local `outputs/Data center/TN` tree while importing helpers from `TN/model/notebook_support`. A fresh clone therefore needs path configuration before those notebooks can run. Review the setup cells in the [Phase 2](model/phase%202/README.md), [Phase 3](model/phase%203/README.md), and [Phase 4](model/phase%204/README.md) notebooks before execution. Released tables and figures can be inspected directly.
 
 ## Updating the map
 

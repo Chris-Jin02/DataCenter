@@ -1,6 +1,6 @@
 # Tennessee Data Center Map
 
-[Project overview](../README.md) · [Source dataset](../dataset/README.md)
+[Project overview](../README.md) · [Source dataset](../dataset/tennessee_public_data_centers.xlsx)
 
 ## Files and workflow
 

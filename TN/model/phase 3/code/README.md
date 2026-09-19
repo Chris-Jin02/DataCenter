@@ -1,8 +1,8 @@
 # Phase 3 Notebook archive
 
-[Phase 3 overview](../README.md) · [Result workbooks](../results/) · [Shared helpers](../../notebook_support/README.md)
+[Phase 3 overview](../README.md) · [Result workbooks](../results/) · [Shared helpers](../../notebook_support/)
 
-This directory contains the two notebooks listed below. Their output workbooks and figures are stored in `../results/`; their shared imports are maintained in `../../notebook_support/`. See the [model execution-layout notes](../../README.md) for the current root and output-path requirements.
+This directory contains the two notebooks listed below. Their output workbooks and figures are stored in `../results/`; their shared imports are maintained in `../../notebook_support/`. See the [project execution-layout notes](../../../README.md#notebook-execution-layout) for the current root and output-path requirements.
 
 This directory is the permanent home for executable Phase 3 notebooks. Keep each notebook together with the result workbook it produces. Do not remove a notebook when retaining its result.
 

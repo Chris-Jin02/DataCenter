@@ -1,6 +1,6 @@
 # Phase 2 Tennessee modeling dataset
 
-[Model workflow](../README.md) · [Previous: Phase 1](../phase%201/README.md) · [Next: Phase 3](../phase%203/README.md)
+[Project overview](../../README.md) · [Previous: Phase 1](../phase%201/README.md) · [Next: Phase 3](../phase%203/README.md)
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Phase 2 converts the Phase 1 inventory into a presence-background modeling datas
 - [Phase2_candidate_domain_background.ipynb](Phase2_candidate_domain_background.ipynb): validates strict D1, scale selection, and D2 sampling.
 - [Phase2_grid_feature_matrix.ipynb](Phase2_grid_feature_matrix.ipynb): validates the Phase 2C feature join, presents the Phase 2D screening outputs, and checks the Phase 3 handoff contract.
 
-Both notebooks use the [shared support modules](../notebook_support/README.md), including `phase2_io.py`. Review the [execution-layout notes](../README.md) before rerunning them. The phase directory stores the validation notebooks and frozen workbook. The final workbook retains source URLs, filters, calculation definitions, limitations, and aggregate sensitivity results.
+Both notebooks use the [shared support modules](../notebook_support/), including `phase2_io.py`. Review the [project execution-layout notes](../../README.md#notebook-execution-layout) before rerunning them. The phase directory stores the validation notebooks and frozen workbook. The final workbook retains source URLs, filters, calculation definitions, limitations, and aggregate sensitivity results.
 
 ## Cohorts
 

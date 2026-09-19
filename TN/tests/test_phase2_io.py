@@ -39,4 +39,7 @@ class Phase2IOTest(unittest.TestCase):
         ]
         for notebook in notebooks:
             source = notebook.read_text()
-            self.assertIn("_support = ROOT / 'TN' / 'model' / 'notebook_support'", source)
+            self.assertIn(
+                "_support = ROOT / 'outputs' / 'Data center' / 'TN' / 'model' / 'notebook_support'",
+                source,
+            )

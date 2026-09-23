@@ -1,15 +1,17 @@
 # Tennessee Data Center Map
 
-[Project overview](../README.md) · [Source dataset](../dataset/tennessee_public_data_centers.xlsx)
+## Run locally
 
-## Files and workflow
+From the UTK project root:
 
-- [Map generator](TN_DC_Map_Generator.ipynb): reads the [source inventory](../dataset/tennessee_public_data_centers.xlsx) and produces the interactive map.
-- [HTML template](template/TN_dcmap_template.html): map source template.
-- [Generated map](tennessee_dcmap.html): retained interactive HTML product.
-- [Preview image](tennessee_dcmap_preview.png): static preview for documentation.
+```bash
+cd "outputs/Data center/TN/Map"
+python3 -m http.server 8000
+```
 
-Run the generator from `TN/Map/` after updating and validating the source workbook. The analytical score maps are separate products in [Phase 4 results](../model/phase%204/README.md).
+Open `http://localhost:8000/tennessee_dcmap.html` in a browser. Stop the server with Ctrl+C. The map data is embedded in the HTML, but basemap tiles, JavaScript libraries, and the Tennessee boundary require an internet connection.
+
+The default basemap is OpenFreeMap Positron. If a basemap request returns HTTP 403, use the layer menu at top right to try another basemap and inspect the failing request URL in the browser's Network tab. A 403 from a tile host is a remote-service response; the local Python server does not serve the tiles.
 
 ## Sources and Attribution
 
@@ -51,7 +53,9 @@ For a specific facility, also cite the evidence links shown in its popup and inc
 | Circle | Data center |
 | Square | Interconnection facility |
 | Diamond | Crypto-mining facility |
-| Dashed circle | Candidate site, not a confirmed facility |
+| Dashed circle | Unconfirmed candidate site |
+| Circle with × | Cancelled record / negative sample, from either `Master` or `Candidate_Sites` |
+| Square with Ⅱ | Jurisdiction data-center moratorium; its point is a government or town reference, not a facility site |
 
 #### Marker color
 
@@ -61,10 +65,9 @@ For a specific facility, also cite the evidence links shown in its popup and inc
 | Amber | Under construction |
 | Blue | Proposed |
 | Purple | Expanding |
-| Gray | Cancelled or inactive |
 | Black | Unknown |
 
-Candidate sites use a white marker with a dashed amber outline, regardless of lifecycle status.
+Candidate sites use a white marker with a dashed amber outline. Cancelled records use a pale red marker with an ×, regardless of facility type or capacity.
 
 #### Marker size
 
@@ -79,12 +82,14 @@ Hover over a marker for a short summary. Click it to view facility details, data
 
 ### Control panel
 
-- **Visible facilities**: number of confirmed facility markers currently shown.
+- **Visible facilities**: number of non-cancelled Master markers currently shown.
 - **With published MW**: visible confirmed facilities with a reported capacity.
-- **Candidate sites**: number of candidate markers currently shown.
-- **Search**: searches visible records by facility name, operator, city, county, or facility ID. Reset filters if a known facility does not appear.
+- **Candidate sites**: number of non-cancelled candidate markers currently shown.
+- **Cancelled / negative**: number of visible cancelled markers from both source sheets.
+- **Policy moratoriums**: number of visible `Moratoriums` records. All 11 records in the current workbook have reference-point coordinates.
+- **Search**: searches visible facilities and candidate records by name, operator, city, county, or ID. Reset filters if a known record does not appear.
+- **Map layers**: independently show or hide facilities, unconfirmed candidates, cancelled records, and policy moratoriums.
 - **Crypto included**: shows or hides crypto-mining facilities.
-- **Candidate sites included**: shows or hides the separate candidate layer.
 - **Verification class**: filters confirmed, review-required, or candidate records.
 - **Source confidence**: filters records by high, medium, or low confidence.
 - **QA state**: filters records with coordinate or status conflicts.
@@ -93,11 +98,13 @@ Hover over a marker for a short summary. Click it to view facility details, data
 - **Published capacity**: filters facilities by reported MW or missing capacity.
 - **Reset filters**: restores all records and fits the map to the visible Tennessee locations.
 
-Use the arrow in the control panel to collapse or expand it. Use the top-right layer menu to switch between the available basemaps. Zoom controls are in the bottom-right corner.
+Use the arrow in the control panel to collapse or expand it. The legend at bottom left can also be collapsed. Use the top-right layer menu to switch basemaps. Zoom controls are in the bottom-right corner.
 
 ## Interpretation Notes
 
 - Candidate sites are separate from confirmed facilities and should not be included in confirmed-facility counts.
+- Cancelled markers are historical negative examples, not active facilities or proposed sites. They are excluded from the facility and candidate counters.
+- Moratorium records describe local policy. Their map points locate a jurisdiction reference, not the policy boundary or an affected facility. Eight records have no operator attributable to the policy; the other three link to existing facilities for context only. A linked facility's operator is not the operator of a jurisdiction-wide moratorium.
 - Coordinates may represent an exact site, an address, an approximate location, or a city-level location. Check the popup before using a point for detailed spatial analysis.
 - Published capacity may be incomplete. A missing value must not be treated as zero.
 - Status, ownership, capacity, and location can change. Review the update date and evidence links before publication.
